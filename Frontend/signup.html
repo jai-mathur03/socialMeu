@@ -101,39 +101,44 @@
         // Handle form submission
         signupForm.addEventListener('submit', async function(event) {
             event.preventDefault();
-            errorMessage.textContent = ""; // Clear previous errors
+            errorMessage.textContent = "";
             
             try {
-                // Get form data
-                const userData = {
-                    name: document.getElementById('name').value.trim(),
-                    designation: document.getElementById('designation').value.trim(),
-                    email: document.getElementById('email').value.trim(),
-                    password: document.getElementById('password').value,
-                    confirmPassword: document.getElementById('confirmPassword').value
-                };
-        
-                console.log('Sending request to:', `${API_BASE_URL}/api/auth/register`);
+                // Create FormData object
+                const formData = new FormData();
+                formData.append('name', document.getElementById('name').value.trim());
+                formData.append('designation', document.getElementById('designation').value.trim());
+                formData.append('email', document.getElementById('email').value.trim());
+                formData.append('password', document.getElementById('password').value);
+                formData.append('confirmPassword', document.getElementById('confirmPassword').value);
                 
+                // Remove the file requirement since you're using a default profile picture
+                // const profileFile = document.getElementById('profilePicture').files[0];
+                // if (profileFile) {
+                //     formData.append('profilePicture', profileFile);
+                // }
+        
                 const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(userData)
+                    // Remove the Content-Type header - let the browser set it
+                    body: JSON.stringify({
+                        name: document.getElementById('name').value.trim(),
+                        designation: document.getElementById('designation').value.trim(),
+                        email: document.getElementById('email').value.trim(),
+                        password: document.getElementById('password').value,
+                        confirmPassword: document.getElementById('confirmPassword').value
+                    })
                 });
         
-                console.log('Response status:', response.status);
-        
-                const data = await response.json();
-                
-                if (response.ok) {
-                    alert(data.message);
-                    window.location.href = "thankYou.html";
-                } else {
-                    throw new Error(data.message || "Registration failed");
+                if (!response.ok) {
+                    const errorData = await response.text(); // Use text() instead of json()
+                    console.log('Error response:', errorData);
+                    throw new Error(errorData || 'Registration failed');
                 }
         
+                const data = await response.json();
+                alert(data.message);
+                window.location.href = "thankYou.html";
             } catch (error) {
                 console.error('Signup error:', error);
                 errorMessage.textContent = error.message || "Failed to connect to the server.";
