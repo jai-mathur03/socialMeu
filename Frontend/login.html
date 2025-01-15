@@ -261,7 +261,7 @@
                     
                     // Redirect after a brief delay to show success message
                     setTimeout(() => {
-                        window.location.href = 'dashboard.html';
+                        window.location.href = 'main.html';
                     }, 1000);
                 } else {
                     throw new Error(data.message || 'Login failed');
@@ -290,7 +290,7 @@
         window.addEventListener('load', () => {
             const token = localStorage.getItem('token');
             if (token) {
-                window.location.href = 'dashboard.html';
+                window.location.href = 'main.html';
             }
         });
     </script>
