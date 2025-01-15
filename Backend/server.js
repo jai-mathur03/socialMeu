@@ -147,52 +147,49 @@ const initializeContent = async () => {
 };
 
 // Auth Routes
-app.post('/api/auth/register', upload.single('profilePicture'), async (req, res) => {
+app.post('/api/auth/register', async (req, res) => {
     try {
-        // Add debugging logs
         console.log('Register endpoint hit');
         console.log('Request body:', req.body);
-        console.log('File:', req.file);
 
         const { name, designation, email, password, confirmPassword } = req.body;
 
-        // Validate required fields
+        // Validate input
         if (!name || !designation || !email || !password || !confirmPassword) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 success: false,
-                message: 'All fields are required' 
+                message: 'All fields are required'
             });
         }
 
+        // Check password match
         if (password !== confirmPassword) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 success: false,
-                message: 'Passwords do not match' 
+                message: 'Passwords do not match'
             });
         }
 
+        // Check existing user
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 success: false,
-                message: 'User already exists' 
+                message: 'User already exists'
             });
         }
 
+        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
-        
-        // Set default profile picture if no file uploaded
-        const profilePicturePath = req.file ? req.file.path : 'https://via.placeholder.com/150';
 
-        const user = new User({
+        // Create user with default profile picture
+        const user = await User.create({
             name,
             designation,
             email,
             password: hashedPassword,
-            profilePicture: profilePicturePath
+            profilePicture: 'https://via.placeholder.com/150'
         });
-
-        await user.save();
 
         res.status(201).json({
             success: true,
@@ -201,7 +198,6 @@ app.post('/api/auth/register', upload.single('profilePicture'), async (req, res)
 
     } catch (error) {
         console.error('Registration error:', error);
-        // Ensure we're sending a proper JSON response even for errors
         res.status(500).json({
             success: false,
             message: 'Server error during registration. Please try again.'
