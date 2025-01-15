@@ -23,6 +23,10 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+if (!fs.existsSync('uploads')) {
+    fs.mkdirSync('uploads');
+}
+
 // Middleware
 app.use(express.json());
 // Add specific CORS configuration
