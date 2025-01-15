@@ -152,10 +152,10 @@ app.post('/api/auth/register', async (req, res) => {
     try {
         console.log('Register endpoint hit');
         console.log('Request body:', req.body);
-
+        
         const { name, designation, email, password, confirmPassword } = req.body;
-
-        // Validate input
+        
+        // Add more detailed validation
         if (!name || !designation || !email || !password || !confirmPassword) {
             return res.status(400).json({
                 success: false,
@@ -171,26 +171,28 @@ app.post('/api/auth/register', async (req, res) => {
             });
         }
 
-        // Check existing user
+        // Check existing user with more detailed error
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({
                 success: false,
-                message: 'User already exists'
+                message: 'Email already registered'
             });
         }
 
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create user with default profile picture
-        const user = await User.create({
+        // Create user
+        const user = new User({
             name,
             designation,
             email,
             password: hashedPassword,
-            profilePicture: 'https://via.placeholder.com/150'
+            profilePicture: 'https://via.placeholder.com/150'  // Set default picture
         });
+
+        await user.save();
 
         res.status(201).json({
             success: true,
@@ -201,7 +203,7 @@ app.post('/api/auth/register', async (req, res) => {
         console.error('Registration error:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error during registration. Please try again.'
+            message: error.message || 'Server error during registration. Please try again.'
         });
     }
 });
