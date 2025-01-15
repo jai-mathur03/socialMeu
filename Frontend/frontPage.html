@@ -95,7 +95,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            fetch('/getContent')
+            fetch(`${API_BASE_URL}/getContent`)
                 .then(response => response.json())
                 .then(data => {
                     const contentSection = document.getElementById('home'); // Replace with your actual section ID
