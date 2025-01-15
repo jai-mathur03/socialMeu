@@ -6,6 +6,67 @@
     <title>Sign Up - Socialite</title>
     <link rel="stylesheet" href="assets/style.css">
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar img {
+            height: 40px;
+        }
+        .dropdown {
+            position: relative;
+        }
+        .dropdown button {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #555;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .dropdown-content a {
+            color: white;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .content-box {
+            margin-top: 80px;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
         .profile-upload {
             margin: 20px 0;
             text-align: center;
@@ -19,35 +80,38 @@
             display: block;
             border: 2px solid #ddd;
         }
-        .error {
-            color: #dc3545;
-            margin: 5px 0;
-            font-size: 0.875rem;
-        }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        .loading {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-        .file-input-wrapper {
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: calc(100% - 20px);
+            padding: 10px;
             margin: 10px 0;
-            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
-        .file-input-label {
-            cursor: pointer;
-            padding: 8px 16px;
+        button {
             background-color: #007bff;
             color: white;
+            padding: 10px 20px;
+            border: none;
             border-radius: 4px;
-            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
         }
-        .file-input-label:hover {
+        button:hover {
             background-color: #0056b3;
         }
-        #profilePicture {
-            display: none;
+        .error {
+            color: red;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .b1 {
+            background-color: #28a745;
+        }
+        .b1:hover {
+            background-color: #218838;
         }
     </style>
 </head>
@@ -61,53 +125,33 @@
             </div>
         </div>
     </div>
-
+    
     <div class="content-box">
-        <h2>Sign up</h2>
+        <h2>Sign up:</h2>
         <form class="signup-form" id="signupForm" enctype="multipart/form-data">
             <div class="profile-upload">
                 <img id="profilePreview" src="https://via.placeholder.com/150" alt="Profile Preview" class="profile-preview">
-                <div class="file-input-wrapper">
-                    <label for="profilePicture" class="file-input-label">
-                        Choose Profile Picture
-                    </label>
-                    <input type="file" id="profilePicture" accept="image/*">
-                </div>
+                <input type="file" id="profilePicture" accept="image/*" required>
             </div>
             
-            <div class="form-group">
-                <input type="text" id="name" placeholder="Name" required>
-            </div>
-            
-            <div class="form-group">
-                <input type="text" id="designation" placeholder="Designation" required>
-            </div>
-            
-            <div class="form-group">
-                <input type="email" id="email" placeholder="Email" required>
-            </div>
-            
-            <div class="form-group">
-                <input type="password" id="password" placeholder="Password" required>
-            </div>
-            
-            <div class="form-group">
-                <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
-            </div>
-            
+            <input type="text" id="name" placeholder="Name" required><br>
+            <input type="text" id="designation" placeholder="Designation" required><br>
+            <input type="email" id="email" placeholder="Email" required><br>
+            <input type="password" id="password" placeholder="Password" required><br>
+            <input type="password" id="confirmPassword" placeholder="Confirm Password" required><br>
             <p class="error" id="errorMessage"></p>
-            <button type="submit" id="submitButton">Sign Up</button>
+            <button type="submit">Sign Up</button>
         </form>
-
-        <div class="signin-section">
-            <h2>OR</h2>
+        
+        <h2 style="margin: 0%; margin-top:15px;">OR</h2>
+        <div>
             <h4>Already a member?</h4>
             <a href="login.html"><button class="b1">Sign In</button></a>
         </div>
     </div>
 
     <script>
-        const API_BASE_URL = window.location.hostname === 'localhost'
+        const API_BASE_URL = window.location.hostname === 'localhost' 
             ? 'http://localhost:5002'
             : 'https://social-ouf-k3dt.vercel.app';
 
@@ -115,92 +159,46 @@
         const profilePreview = document.getElementById('profilePreview');
         const signupForm = document.getElementById('signupForm');
         const errorMessage = document.getElementById('errorMessage');
-        const submitButton = document.getElementById('submitButton');
 
-        // Handle profile picture preview
         profilePicture.addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
-                // Validate file type
-                if (!file.type.startsWith('image/')) {
-                    errorMessage.textContent = "Please select an image file.";
-                    profilePicture.value = '';
-                    return;
-                }
-
-                // Validate file size (5MB max)
-                if (file.size > 5 * 1024 * 1024) {
-                    errorMessage.textContent = "File size should be less than 5MB.";
-                    profilePicture.value = '';
-                    return;
-                }
-
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     profilePreview.src = e.target.result;
-                };
-                reader.onerror = function() {
-                    errorMessage.textContent = "Error reading file.";
-                    profilePicture.value = '';
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        // Form validation
-        function validateForm(data) {
-            if (data.password.length < 8) {
-                throw new Error("Password must be at least 8 characters long");
-            }
-            if (data.password !== data.confirmPassword) {
-                throw new Error("Passwords do not match");
-            }
-            if (!data.email.includes('@')) {
-                throw new Error("Please enter a valid email address");
-            }
-        }
-
-        // Handle form submission
         signupForm.addEventListener('submit', async function(event) {
             event.preventDefault();
-            errorMessage.textContent = "";
-            submitButton.disabled = true;
-            signupForm.classList.add('loading');
+            
+            const formData = new FormData();
+            formData.append('name', document.getElementById('name').value);
+            formData.append('designation', document.getElementById('designation').value);
+            formData.append('email', document.getElementById('email').value);
+            formData.append('password', document.getElementById('password').value);
+            formData.append('confirmPassword', document.getElementById('confirmPassword').value);
+            formData.append('profilePicture', document.getElementById('profilePicture').files[0]);
 
             try {
-                const formData = new FormData();
-                formData.append('name', document.getElementById('name').value.trim());
-                formData.append('designation', document.getElementById('designation').value.trim());
-                formData.append('email', document.getElementById('email').value.trim());
-                formData.append('password', document.getElementById('password').value);
-                formData.append('confirmPassword', document.getElementById('confirmPassword').value);
-
-                if (profilePicture.files[0]) {
-                    formData.append('profilePicture', profilePicture.files[0]);
-                }
-
-                // Validate form data
-                validateForm(Object.fromEntries(formData));
-
                 const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
                     method: 'POST',
                     body: formData
                 });
 
                 const data = await response.json();
-
+                
                 if (response.ok) {
                     alert(data.message);
                     window.location.href = "thankYou.html";
                 } else {
-                    throw new Error(data.message || "Registration failed");
+                    errorMessage.textContent = data.message || "An error occurred during signup.";
                 }
             } catch (error) {
-                console.error('Signup error:', error);
-                errorMessage.textContent = error.message || "Failed to connect to the server.";
-            } finally {
-                submitButton.disabled = false;
-                signupForm.classList.remove('loading');
+                console.error('Error:', error);
+                errorMessage.textContent = "Failed to connect to the server.";
             }
         });
     </script>
