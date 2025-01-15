@@ -16,18 +16,8 @@
             "dest": "/Backend/server.js"
         },
         {
-            "src": "/uploads/(.*)",
-            "dest": "/Backend/uploads/$1"
-        },
-        {
-            "handle": "filesystem"
-        },
-        {
             "src": "/(.*)",
             "dest": "/Frontend/$1"
         }
-    ],
-    "env": {
-        "NODE_ENV": "production"
-    }
+    ]
 }
