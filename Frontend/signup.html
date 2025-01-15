@@ -104,43 +104,29 @@
             errorMessage.textContent = ""; // Clear previous errors
             
             try {
-                const formData = new FormData();
-                formData.append('name', document.getElementById('name').value.trim());
-                formData.append('designation', document.getElementById('designation').value.trim());
-                formData.append('email', document.getElementById('email').value.trim());
-                formData.append('password', document.getElementById('password').value);
-                formData.append('confirmPassword', document.getElementById('confirmPassword').value);
+                // Get form data
+                const userData = {
+                    name: document.getElementById('name').value.trim(),
+                    designation: document.getElementById('designation').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    password: document.getElementById('password').value,
+                    confirmPassword: document.getElementById('confirmPassword').value
+                };
         
-                const fileInput = document.getElementById('profilePicture');
-                if (fileInput.files[0]) {
-                    formData.append('profilePicture', fileInput.files[0]);
-                }
-        
-                // Log the request for debugging
                 console.log('Sending request to:', `${API_BASE_URL}/api/auth/register`);
                 
                 const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
                 });
         
-                // Log the response status and headers for debugging
                 console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers);
         
-                // Try to get the response text first
-                const responseText = await response.text();
-                console.log('Response text:', responseText);
-        
-                // Then parse it as JSON
-                let data;
-                try {
-                    data = JSON.parse(responseText);
-                } catch (e) {
-                    console.error('JSON parse error:', e);
-                    throw new Error('Server returned invalid JSON');
-                }
-        
+                const data = await response.json();
+                
                 if (response.ok) {
                     alert(data.message);
                     window.location.href = "thankYou.html";
@@ -149,7 +135,7 @@
                 }
         
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Signup error:', error);
                 errorMessage.textContent = error.message || "Failed to connect to the server.";
             }
         });
