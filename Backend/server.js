@@ -11,14 +11,24 @@ const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
 
 const app = express();
+const MONGODB_URI = "mongodb+srv://jaiadityamathur2022:nA7yvXLpXVcfnCye@cluster0.eto5t.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 // MongoDB Connection and GridFS Setup
 let gfs;
-mongoose.connect("mongodb+srv://jaiadityamathur2022:nA7yvXLpXVcfnCye@cluster0.eto5t.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+const conn = mongoose.createConnection(MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+
+conn.once('open', () => {
+    gfs = Grid(conn.db, mongoose.mongo);
+    gfs.collection('uploads');
+    console.log('GridFS Connected');
+});
+
+mongoose.connect(MONGODB_URI)
 .then(() => {
     console.log('MongoDB Connected Successfully');
-    gfs = Grid(mongoose.connection.db, mongoose.mongo);
-    gfs.collection('uploads');
     initializeAdmin();
     initializeContent();
 })
@@ -26,13 +36,17 @@ mongoose.connect("mongodb+srv://jaiadityamathur2022:nA7yvXLpXVcfnCye@cluster0.et
 
 // GridFS Storage Setup
 const storage = new GridFsStorage({
-    url: "mongodb+srv://jaiadityamathur2022:nA7yvXLpXVcfnCye@cluster0.eto5t.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+    url: MONGODB_URI,
     options: { useNewUrlParser: true, useUnifiedTopology: true },
     file: (req, file) => {
-        return {
-            bucketName: 'uploads',
-            filename: `${Date.now()}-${file.originalname}`
-        };
+        return new Promise((resolve, reject) => {
+            const filename = `${Date.now()}-${uuidv4()}-${file.originalname}`;
+            const fileInfo = {
+                filename: filename,
+                bucketName: 'uploads'
+            };
+            resolve(fileInfo);
+        });
     }
 });
 
@@ -42,10 +56,11 @@ const upload = multer({
         fileSize: 5 * 1024 * 1024 // 5MB limit
     },
     fileFilter: (req, file, cb) => {
-        if (file.mimetype.startsWith('image/')) {
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (allowedTypes.includes(file.mimetype)) {
             cb(null, true);
         } else {
-            cb(new Error('Only image files are allowed!'), false);
+            cb(new Error('Invalid file type. Only JPEG, PNG and GIF are allowed.'), false);
         }
     }
 });
@@ -57,7 +72,6 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.static(path.join(__dirname, '../frontend')));
-app.use('/uploads', express.static('uploads'));
 
 // Schemas
 const userSchema = new mongoose.Schema({
@@ -151,12 +165,18 @@ app.get('/api/image/:filename', async (req, res) => {
             return res.status(404).json({ message: 'File not found' });
         }
 
-        if (file.contentType.startsWith('image/')) {
-            const readstream = gfs.createReadStream(file.filename);
-            readstream.pipe(res);
-        } else {
-            res.status(404).json({ message: 'Not an image' });
-        }
+        // Set proper content type
+        res.set('Content-Type', file.contentType);
+
+        // Create read stream
+        const readstream = gfs.createReadStream({ filename: file.filename });
+        readstream.on('error', function(err) {
+            console.log('An error occurred!', err);
+            res.status(500).json({ message: "Error reading file" });
+        });
+
+        // Pipe the file to the response
+        readstream.pipe(res);
     } catch (error) {
         console.error('Error serving image:', error);
         res.status(500).json({ message: 'Error serving image' });
@@ -178,11 +198,13 @@ app.post('/api/auth/register', upload.single('profilePicture'), async (req, res)
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const profilePictureUrl = req.file 
-            ? `/api/image/${req.file.filename}` 
-            : 'https://via.placeholder.com/150';
+        let profilePictureUrl = 'https://via.placeholder.com/150';
 
-        await User.create({
+        if (req.file) {
+            profilePictureUrl = `/api/image/${req.file.filename}`;
+        }
+
+        const newUser = await User.create({
             name,
             designation,
             email,
@@ -190,13 +212,19 @@ app.post('/api/auth/register', upload.single('profilePicture'), async (req, res)
             profilePicture: profilePictureUrl
         });
 
-        res.status(201).json({ message: 'User registered. Awaiting admin approval.' });
+        res.status(201).json({ 
+            message: 'User registered. Awaiting admin approval.',
+            user: {
+                ...newUser.toObject(),
+                password: undefined
+            }
+        });
     } catch (error) {
         console.error('Registration error:', error);
         if (error.code === 'LIMIT_FILE_SIZE') {
             return res.status(400).json({ message: 'File size too large. Maximum size is 5MB.' });
         }
-        if (error.message === 'Only image files are allowed!') {
+        if (error.message.includes('Invalid file type')) {
             return res.status(400).json({ message: error.message });
         }
         res.status(500).json({ message: 'Server error during registration' });
@@ -402,17 +430,40 @@ app.put('/api/admin/approve/:id', authenticate, verifyAdmin, async (req, res) =>
 
 app.delete('/api/admin/reject/:id', authenticate, verifyAdmin, async (req, res) => {
     try {
-        const user = await User.findByIdAndDelete(req.params.id);
+        const user = await User.findById(req.params.id);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // If user had a profile picture stored in GridFS, delete it
+        // Delete profile picture from GridFS if it exists
         if (user.profilePicture && !user.profilePicture.includes('placeholder')) {
             const filename = user.profilePicture.split('/').pop();
-            await gfs.files.deleteOne({ filename });
+            try {
+                const file = await gfs.files.findOne({ filename });
+                if (file) {
+                    await gfs.files.deleteOne({ filename });
+                }
+            } catch (err) {
+                console.error('Error deleting profile picture:', err);
+            }
         }
 
+        // Remove user's connections and requests
+        await User.updateMany(
+            { $or: [
+                { connections: user._id },
+                { requests: user._id }
+            ]},
+            { 
+                $pull: { 
+                    connections: user._id,
+                    requests: user._id
+                }
+            }
+        );
+
+        // Delete the user
+        await User.findByIdAndDelete(req.params.id);
         res.json({ message: 'User rejected and removed' });
     } catch (error) {
         console.error('Reject user error:', error);
@@ -420,6 +471,7 @@ app.delete('/api/admin/reject/:id', authenticate, verifyAdmin, async (req, res) 
     }
 });
 
+// Content Routes
 app.get('/getContent', async (req, res) => {
     try {
         const content = await Content.findOne();
@@ -433,7 +485,7 @@ app.get('/getContent', async (req, res) => {
     }
 });
 
-app.post('/updateContent', async (req, res) => {
+app.post('/updateContent', authenticate, verifyAdmin, async (req, res) => {
     try {
         const { content } = req.body;
         if (!content) {
@@ -456,7 +508,46 @@ app.post('/updateContent', async (req, res) => {
     }
 });
 
-// Route to handle image cleanup
+// Profile Update Route
+app.put('/api/users/profile', authenticate, upload.single('profilePicture'), async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // If new profile picture is uploaded, delete the old one
+        if (req.file) {
+            if (user.profilePicture && !user.profilePicture.includes('placeholder')) {
+                const oldFilename = user.profilePicture.split('/').pop();
+                try {
+                    const oldFile = await gfs.files.findOne({ filename: oldFilename });
+                    if (oldFile) {
+                        await gfs.files.deleteOne({ filename: oldFilename });
+                    }
+                } catch (err) {
+                    console.error('Error deleting old profile picture:', err);
+                }
+            }
+            user.profilePicture = `/api/image/${req.file.filename}`;
+        }
+
+        // Update other fields if provided
+        if (req.body.name) user.name = req.body.name;
+        if (req.body.designation) user.designation = req.body.designation;
+        
+        await user.save();
+        res.json({ 
+            message: 'Profile updated successfully',
+            user: { ...user.toObject(), password: undefined }
+        });
+    } catch (error) {
+        console.error('Profile update error:', error);
+        res.status(500).json({ message: 'Server error during profile update' });
+    }
+});
+
+// Image Cleanup Route
 app.delete('/api/image/:filename', authenticate, async (req, res) => {
     try {
         const file = await gfs.files.findOne({ filename: req.params.filename });
@@ -486,7 +577,14 @@ app.use((req, res) => {
     res.status(404).json({ message: 'Route not found' });
 });
 
+// Health check route
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 const PORT = process.env.PORT || 5002;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+module.exports = app;
