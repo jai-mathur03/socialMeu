@@ -1,4 +1,3 @@
-// Import Dependencies
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
@@ -15,22 +14,32 @@ const app = express();
 
 // Configure Multer for File Upload
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, 'uploads/'),
+    destination: (req, file, cb) => {
+        if (!fs.existsSync('uploads')) {
+            fs.mkdirSync('uploads', { recursive: true });
+        }
+        cb(null, 'uploads/');
+    },
     filename: (req, file, cb) => {
         const uniqueFilename = `${uuidv4()}-${file.originalname}`;
         cb(null, uniqueFilename);
     }
 });
 
-const upload = multer({ storage });
-
-if (!fs.existsSync('uploads')) {
-    fs.mkdirSync('uploads');
-}
+const upload = multer({
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only image files are allowed'));
+        }
+    }
+});
 
 // Middleware
 app.use(express.json());
-// Add specific CORS configuration
 app.use(cors({
     origin: ['https://social-ouf.vercel.app', 'http://localhost:5002'],
     credentials: true
@@ -38,40 +47,42 @@ app.use(cors({
 app.use(express.static(path.join(__dirname, '../frontend')));
 app.use('/uploads', express.static('uploads'));
 
-// MongoDB Connection
-console.log(process.env.MONGO_URI); 
-// At the top of server.js
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-    retryWrites: true
-})
-.then(() => {
-    console.log('MongoDB Connected Successfully');
-    initializeAdmin();
-    initializeContent();
-})
-.catch(err => {
-    console.error('MongoDB Connection Error:', err);
-    // Don't exit the process, just log the error
-});
+// MongoDB Connection with Retry Logic
+const connectDB = async () => {
+    try {
+        await mongoose.connect(process.env.MONGO_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 5000,
+            retryWrites: true
+        });
+        console.log('MongoDB Connected Successfully');
+        await Promise.all([initializeAdmin(), initializeContent()]);
+    } catch (err) {
+        console.error('MongoDB Connection Error:', err);
+        setTimeout(connectDB, 5000); // Retry after 5 seconds
+    }
+};
 
-// Database Schemas
+connectDB();
+
+// Schemas
 const userSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    designation: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    name: { type: String, required: true, trim: true },
+    designation: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, trim: true, lowercase: true },
     password: { type: String, required: true },
     isApproved: { type: Boolean, default: false },
     profilePicture: { type: String, default: 'https://via.placeholder.com/150' },
     connections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    requests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+    requests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    createdAt: { type: Date, default: Date.now }
 });
 
 const adminSchema = new mongoose.Schema({
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true }
+    email: { type: String, required: true, unique: true, trim: true, lowercase: true },
+    password: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now }
 });
 
 const contentSchema = new mongoose.Schema({
@@ -84,14 +95,13 @@ const User = mongoose.model('User', userSchema);
 const Admin = mongoose.model('Admin', adminSchema);
 const Content = mongoose.model('Content', contentSchema);
 
-// Authentication Middleware
-const authenticate = (req, res, next) => {
+// Middleware
+const authenticate = async (req, res, next) => {
     try {
         const token = req.header('Authorization')?.split(' ')[1];
         if (!token) {
             return res.status(401).json({ message: 'Authentication required' });
         }
-        
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded;
         next();
@@ -100,7 +110,6 @@ const authenticate = (req, res, next) => {
     }
 };
 
-// Admin Verification Middleware
 const verifyAdmin = async (req, res, next) => {
     try {
         const admin = await Admin.findById(req.user.id);
@@ -113,14 +122,14 @@ const verifyAdmin = async (req, res, next) => {
     }
 };
 
-// Initialize Admin Function
+// Initialization Functions
 const initializeAdmin = async () => {
+    const admins = [
+        { email: "Socialite@gmail.com", password: "adminSocialite123" },
+        { email: "Hitachi@gmail.com", password: "adminHitachi123" }
+    ];
+    
     try {
-        const admins = [
-            { email: "Socialite@gmail.com", password: "adminSocialite123" },
-            { email: "Hitachi@gmail.com", password: "adminHitachi123" }
-        ];
-
         for (const admin of admins) {
             const existingAdmin = await Admin.findOne({ email: admin.email });
             if (!existingAdmin) {
@@ -134,7 +143,6 @@ const initializeAdmin = async () => {
     }
 };
 
-// Initialize Content Function
 const initializeContent = async () => {
     try {
         const existingContent = await Content.findOne();
@@ -147,15 +155,13 @@ const initializeContent = async () => {
     }
 };
 
+// Routes
 // Auth Routes
-app.post('/api/auth/register', async (req, res) => {
+app.post('/api/auth/register', upload.single('profilePicture'), async (req, res) => {
     try {
-        console.log('Register endpoint hit');
-        console.log('Request body:', req.body);
-        
         const { name, designation, email, password, confirmPassword } = req.body;
-        
-        // Add more detailed validation
+
+        // Validation
         if (!name || !designation || !email || !password || !confirmPassword) {
             return res.status(400).json({
                 success: false,
@@ -163,7 +169,6 @@ app.post('/api/auth/register', async (req, res) => {
             });
         }
 
-        // Check password match
         if (password !== confirmPassword) {
             return res.status(400).json({
                 success: false,
@@ -171,39 +176,38 @@ app.post('/api/auth/register', async (req, res) => {
             });
         }
 
-        // Check existing user with more detailed error
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({
                 success: false,
-                message: 'Email already registered'
+                message: 'User already exists'
             });
         }
 
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
+        // Handle profile picture
+        let profilePicture = 'https://via.placeholder.com/150';
+        if (req.file) {
+            profilePicture = `/uploads/${req.file.filename}`;
+        }
 
-        // Create user
-        const user = new User({
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await User.create({
             name,
             designation,
             email,
             password: hashedPassword,
-            profilePicture: 'https://via.placeholder.com/150'  // Set default picture
+            profilePicture
         });
-
-        await user.save();
 
         res.status(201).json({
             success: true,
             message: 'User registered successfully. Awaiting admin approval.'
         });
-
     } catch (error) {
         console.error('Registration error:', error);
         res.status(500).json({
             success: false,
-            message: error.message || 'Server error during registration. Please try again.'
+            message: 'Server error during registration. Please try again.'
         });
     }
 });
@@ -227,13 +231,24 @@ app.post('/api/auth/login', async (req, res) => {
         }
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-        res.json({ token, user: { ...user.toObject(), password: undefined } });
+        res.json({ 
+            token, 
+            user: { 
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                designation: user.designation,
+                profilePicture: user.profilePicture,
+                isApproved: user.isApproved
+            } 
+        });
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
 
+// Admin Routes
 app.post('/api/auth/admin-login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -253,7 +268,7 @@ app.post('/api/auth/admin-login', async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: '1d' }
         );
-        
+
         res.json({ token });
     } catch (error) {
         console.error('Admin login error:', error);
@@ -271,12 +286,16 @@ app.get('/api/users/me', authenticate, async (req, res) => {
             }
         }
 
-        const user = await User.findById(req.user.id);
+        const user = await User.findById(req.user.id)
+            .select('-password')
+            .populate('connections', 'name profilePicture')
+            .populate('requests', 'name profilePicture');
+
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        res.json({ isAdmin: false, ...user.toObject(), password: undefined });
+        res.json({ isAdmin: false, ...user.toObject() });
     } catch (error) {
         console.error('Get user error:', error);
         res.status(500).json({ message: 'Server error' });
@@ -287,11 +306,10 @@ app.get('/api/users/me', authenticate, async (req, res) => {
 app.get('/api/members', authenticate, async (req, res) => {
     try {
         const currentUser = await User.findById(req.user.id);
-        // Change here: Only select necessary fields for initial view
         const members = await User.find({
             _id: { $ne: req.user.id },
             isApproved: true
-        }).select('name profilePicture _id'); // Only name and profile picture
+        }).select('name profilePicture _id');
 
         const membersWithStatus = members.map(member => ({
             ...member.toObject(),
@@ -299,7 +317,6 @@ app.get('/api/members', authenticate, async (req, res) => {
             requestSent: (member.requests || []).includes(currentUser._id),
             requestReceived: (currentUser.requests || []).includes(member._id)
         }));
-        
 
         res.json(membersWithStatus);
     } catch (error) {
@@ -308,28 +325,7 @@ app.get('/api/members', authenticate, async (req, res) => {
     }
 });
 
-app.get('/api/connections', authenticate, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id)
-            .populate('connections', 'name designation email profilePicture');
-        res.json(user.connections);
-    } catch (error) {
-        console.error('Get connections error:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
-});
-
-app.get('/api/connections/requests', authenticate, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id)
-            .populate('requests', 'name profilePicture');
-        res.json(user.requests);
-    } catch (error) {
-        console.error('Get requests error:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
-});
-
+// Connection management routes
 app.post('/api/connections/request/:id', authenticate, async (req, res) => {
     try {
         const toUser = await User.findById(req.params.id);
@@ -381,11 +377,11 @@ app.post('/api/connections/respond/:id', authenticate, async (req, res) => {
     }
 });
 
-// Admin Routes
+// Admin management routes
 app.get('/api/admin/pending-requests', authenticate, verifyAdmin, async (req, res) => {
     try {
         const pendingUsers = await User.find({ isApproved: false })
-            .select('name email designation');
+            .select('name email designation createdAt');
         res.json(pendingUsers);
     } catch (error) {
         console.error('Get pending requests error:', error);
@@ -399,10 +395,8 @@ app.put('/api/admin/approve/:id', authenticate, verifyAdmin, async (req, res) =>
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-
         user.isApproved = true;
         await user.save();
-        
         res.json({ message: 'User approved successfully' });
     } catch (error) {
         console.error('Approve user error:', error);
@@ -416,7 +410,6 @@ app.delete('/api/admin/reject/:id', authenticate, verifyAdmin, async (req, res) 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-
         res.json({ message: 'User rejected and removed' });
     } catch (error) {
         console.error('Reject user error:', error);
@@ -425,7 +418,7 @@ app.delete('/api/admin/reject/:id', authenticate, verifyAdmin, async (req, res) 
 });
 
 // Content Routes
-app.get('/getContent', async (req, res) => {
+app.get('/api/content', async (req, res) => {
     try {
         const content = await Content.findOne();
         if (!content) {
@@ -438,7 +431,7 @@ app.get('/getContent', async (req, res) => {
     }
 });
 
-app.post('/updateContent', async (req, res) => {
+app.post('/api/content', authenticate, verifyAdmin, async (req, res) => {
     try {
         const { content } = req.body;
         if (!content) {
@@ -461,8 +454,16 @@ app.post('/updateContent', async (req, res) => {
     }
 });
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ message: 'Something went wrong!' });
+});
+
 // Start Server
 const PORT = process.env.PORT || 5002;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+module.exports = app;
