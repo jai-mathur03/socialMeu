@@ -41,7 +41,7 @@ const upload = multer({
 // Middleware
 app.use(express.json());
 app.use(cors({
-    origin: ['https://social-ouf.vercel.app', 'http://localhost:5002'],
+    origin: ['https://social-ouf-k3dt.vercel.app', 'http://localhost:5002'],
     credentials: true
 }));
 app.use(express.static(path.join(__dirname, '../frontend')));
