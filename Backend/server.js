@@ -39,13 +39,22 @@ app.use('/uploads', express.static('uploads'));
 
 // MongoDB Connection
 console.log(process.env.MONGO_URI); 
-mongoose.connect(process.env.MONGO_URI)
+// At the top of server.js
+mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+    retryWrites: true
+})
 .then(() => {
     console.log('MongoDB Connected Successfully');
     initializeAdmin();
     initializeContent();
 })
-.catch(err => console.error('MongoDB Connection Failed:', err));
+.catch(err => {
+    console.error('MongoDB Connection Error:', err);
+    // Don't exit the process, just log the error
+});
 
 // Database Schemas
 const userSchema = new mongoose.Schema({
