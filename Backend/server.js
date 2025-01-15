@@ -5,8 +5,6 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const path = require('path');
 const multer = require('multer');
-const { GridFsStorage } = require('multer-gridfs-storage');
-const Grid = require('gridfs-stream');
 const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
 
