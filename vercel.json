@@ -13,37 +13,11 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/Backend/server.js",
-      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Accept, Authorization",
-        "Access-Control-Allow-Credentials": "true"
-      }
-    },
-    {
-      "src": "/uploads/(.*)",
-      "dest": "/Backend/uploads/$1"
-    },
-    {
-      "src": "/",
-      "dest": "/Frontend/frontPage.html"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "/Frontend/assets/$1"
-    },
-    {
-      "src": "/(.*)\\.html",
-      "dest": "/Frontend/$1.html"
+      "dest": "/Backend/server.js"
     },
     {
       "src": "/(.*)",
       "dest": "/Frontend/$1"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
