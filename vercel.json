@@ -18,14 +18,8 @@
             "headers": {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-                "Access-Control-Allow-Credentials": "true",
-                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-                "Cache-Control": "s-maxage=0"
+                "Access-Control-Allow-Credentials": "true"
             }
-        },
-        {
-            "src": "/uploads/(.*)",
-            "dest": "/Backend/uploads/$1"
         },
         {
             "src": "/",
@@ -43,9 +37,5 @@
             "src": "/(.*)",
             "dest": "/Frontend/$1"
         }
-    ],
-    "env": {
-        "MONGO_URI": "@mongo_uri",
-        "JWT_SECRET": "@jwt_secret"
-    }
+    ]
 }
