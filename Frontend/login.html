@@ -1,250 +1,247 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
+    <title>Login - Socialite</title>
     <link rel="stylesheet" href="assets/style.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #f4f4f4;
+        .login-container {
+            max-width: 400px;
+            margin: 0 auto;
         }
 
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #333;
-            color: white;
-            padding: 10px 20px;
-            width: 100%;
-            position: fixed;
-            top: 0;
+        .error {
+            color: #dc3545;
+            margin: 5px 0;
+            font-size: 0.875rem;
+            text-align: left;
         }
 
-        .navbar img {
-            height: 40px;
+        .success {
+            color: #28a745;
+            margin: 5px 0;
+            font-size: 0.875rem;
         }
 
-        .dropdown {
+        .form-group {
+            margin-bottom: 1rem;
             position: relative;
         }
 
-        .dropdown button {
-            background-color: #444;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            cursor: pointer;
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #555;
-            color: white;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-            z-index: 1;
-        }
-
-        .dropdown-content a {
-            display: block;
-            color: white;
-            padding: 8px 16px;
-            text-decoration: none;
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-
-        .content-box {
-            margin-top: 80px;
-            background: white;
-            padding: 20px 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
+        .form-group input {
             width: 100%;
-            max-width: 400px;
-        }
-
-        h2, h3 {
-            margin-bottom: 20px;
-        }
-
-        input[type="email"],
-        input[type="password"] {
-            width: calc(100% - 20px);
-            margin: 10px 0;
             padding: 10px;
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
             border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
         }
 
-        button {
-            margin: 10px 0;
-            padding: 10px 20px;
-            background-color: #007BFF;
+        .form-group input:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+            user-select: none;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
             color: white;
             border: none;
             border-radius: 4px;
+            font-size: 1rem;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
 
-        button:hover {
+        .login-btn:hover {
             background-color: #0056b3;
         }
 
-        .social-login {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
+        .login-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
 
-        .social-login button {
-            flex: 1;
-            padding: 10px;
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
         }
 
-        .error-message {
-            color: red;
-            margin-top: 10px;
+        .alternate-options {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .alternate-options h4 {
+            margin: 10px 0;
+        }
+
+        .signup-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .signup-btn:hover {
+            background-color: #218838;
+        }
+
+        .admin-login-link {
+            display: block;
+            margin-top: 15px;
+            color: #6c757d;
+            text-decoration: none;
+        }
+
+        .admin-login-link:hover {
+            color: #5a6268;
+            text-decoration: underline;
+        }
+
+        #loadingSpinner {
             display: none;
+            margin-left: 10px;
+            animation: spin 1s linear infinite;
         }
 
-        #adminLoginForm,
-        #memberLoginForm {
-            display: none;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
-
 <body>
     <div class="navbar">
         <img src="hitachiLogo.png" alt="Socialite">
         <div class="dropdown">
             <button>Menu</button>
             <div class="dropdown-content">
-                <a href="#">Option 1 ></a>
-                <a href="#">Option 2 ></a>
-                <a href="#">Option 3 ></a>
+                <a href="frontPage.html">Home ></a>
             </div>
         </div>
     </div>
 
     <div class="content-box">
-        <h2>Sign in as:</h2>
-        <button class="admin" onclick="showAdminLogin()">Admin</button>
-        <button class="member" onclick="showMemberLogin()">Member</button>
+        <div class="login-container">
+            <h2>Login to Your Account</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <input 
+                        type="email" 
+                        id="email" 
+                        placeholder="Email" 
+                        required 
+                        autocomplete="email">
+                </div>
+                
+                <div class="form-group">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        placeholder="Password" 
+                        required 
+                        autocomplete="current-password">
+                    <span class="toggle-password" onclick="togglePasswordVisibility()">👁️</span>
+                </div>
 
-        <!-- Admin Login Form -->
-        <div id="adminLoginForm">
-            <h3>Admin Login</h3>
-            <input type="email" id="adminEmail" placeholder="Admin Email" required>
-            <input type="password" id="adminPassword" placeholder="Password" required>
-            <button onclick="handleAdminLogin()">Login</button>
-            <p id="adminError" class="error-message"></p>
-            <button onclick="backToMain()">Back</button>
-        </div>
+                <p class="error" id="errorMessage"></p>
+                <p class="success" id="successMessage"></p>
 
-        <!-- Member Login Form -->
-        <div id="memberLoginForm">
-            <h3>Member Login</h3>
-            <input type="email" id="memberEmail" placeholder="Member Email" required>
-            <input type="password" id="memberPassword" placeholder="Password" required>
-            <button onclick="handleMemberLogin()">Login</button>
-            <p id="memberError" class="error-message"></p>
-            <button onclick="backToMain()">Back</button>
-        </div>
+                <button type="submit" class="login-btn" id="loginButton">
+                    Login
+                    <span id="loadingSpinner">⭕</span>
+                </button>
+            </form>
 
-        <div id="mainButtons">
-            <h2 style="margin: 0; margin-top: 15px;">OR</h2>
-            <div class="social-login">
-                <button class="google" id="g_id_signin">Sign in with Google</button>
-                <button class="apple" onclick="location.href='apple-login.html'">Sign in with Apple</button>
-                <button class="x" onclick="location.href='x-login.html'">Sign in with X</button>
+            <div class="alternate-options">
+                <h4>New to Socialite?</h4>
+                <a href="signup.html">
+                    <button class="signup-btn">Create Account</button>
+                </a>
+                <a href="admin-login.html" class="admin-login-link">Admin Login</a>
             </div>
         </div>
     </div>
 
     <script>
-        // Show/Hide Form Functions
-        const API_BASE_URL = window.location.hostname === 'localhost' 
-            ? 'http://localhost:5002' 
+        const API_BASE_URL = window.location.hostname === 'localhost'
+            ? 'http://localhost:5002'
             : 'https://social-ouf.vercel.app';
-        function showAdminLogin() {
-            document.getElementById('adminLoginForm').style.display = 'block';
-            document.getElementById('mainButtons').style.display = 'none';
-            document.querySelector('.admin').style.display = 'none';
-            document.querySelector('.member').style.display = 'none';
+
+        const loginForm = document.getElementById('loginForm');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const loginButton = document.getElementById('loginButton');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
         }
 
-        function showMemberLogin() {
-            document.getElementById('memberLoginForm').style.display = 'block';
-            document.getElementById('mainButtons').style.display = 'none';
-            document.querySelector('.admin').style.display = 'none';
-            document.querySelector('.member').style.display = 'none';
+        function setLoading(isLoading) {
+            loginButton.disabled = isLoading;
+            loadingSpinner.style.display = isLoading ? 'inline-block' : 'none';
+            loginForm.classList.toggle('loading', isLoading);
         }
 
-        function backToMain() {
-            document.getElementById('adminLoginForm').style.display = 'none';
-            document.getElementById('memberLoginForm').style.display = 'none';
-            document.getElementById('mainButtons').style.display = 'block';
-            document.querySelector('.admin').style.display = 'inline-block';
-            document.querySelector('.member').style.display = 'inline-block';
-            document.getElementById('adminError').style.display = 'none';
-            document.getElementById('memberError').style.display = 'none';
+        function showError(message) {
+            errorMessage.textContent = message;
+            successMessage.textContent = '';
         }
 
-        // Handle Admin Login
-        async function handleAdminLogin() {
-            const email = document.getElementById('adminEmail').value;
-            const password = document.getElementById('adminPassword').value;
-            const errorElement = document.getElementById('adminError');
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            errorMessage.textContent = '';
+        }
 
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/auth/admin-login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password })
-                });
+        // Prevent multiple form submissions
+        let isSubmitting = false;
 
-                const data = await response.json();
+        loginForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
 
-                if (response.ok) {
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('isAdmin', 'true');
-                    window.location.href = 'main.html';
-                } else {
-                    errorElement.textContent = data.message || 'Login failed';
-                    errorElement.style.display = 'block';
-                }
-            } catch (error) {
-                errorElement.textContent = 'An error occurred. Please try again.';
-                errorElement.style.display = 'block';
+            if (isSubmitting) return;
+            isSubmitting = true;
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            // Basic validation
+            if (!email || !password) {
+                showError('Please fill in all fields');
+                isSubmitting = false;
+                return;
             }
-        }
 
-        // Handle Member Login
-        async function handleMemberLogin() {
-            const email = document.getElementById('memberEmail').value;
-            const password = document.getElementById('memberPassword').value;
-            const errorElement = document.getElementById('memberError');
+            if (!email.includes('@')) {
+                showError('Please enter a valid email address');
+                isSubmitting = false;
+                return;
+            }
 
             try {
+                setLoading(true);
+                showError('');
+
                 const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
                     method: 'POST',
                     headers: {
@@ -256,19 +253,46 @@
                 const data = await response.json();
 
                 if (response.ok) {
+                    showSuccess('Login successful! Redirecting...');
+                    
+                    // Store the token and user data
                     localStorage.setItem('token', data.token);
-                    localStorage.setItem('isAdmin', 'false');
-                    window.location.href = 'main.html';
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    // Redirect after a brief delay to show success message
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1000);
                 } else {
-                    errorElement.textContent = data.message || 'Login failed';
-                    errorElement.style.display = 'block';
+                    throw new Error(data.message || 'Login failed');
                 }
             } catch (error) {
-                errorElement.textContent = 'An error occurred. Please try again.';
-                errorElement.style.display = 'block';
+                console.error('Login error:', error);
+                showError(error.message || 'Failed to connect to the server');
+            } finally {
+                setLoading(false);
+                isSubmitting = false;
             }
-        }
+        });
+
+        // Clear messages when user starts typing
+        document.getElementById('email').addEventListener('input', () => {
+            errorMessage.textContent = '';
+            successMessage.textContent = '';
+        });
+
+        document.getElementById('password').addEventListener('input', () => {
+            errorMessage.textContent = '';
+            successMessage.textContent = '';
+        });
+
+        // Check for existing token on page load
+        window.addEventListener('load', () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                window.location.href = 'dashboard.html';
+            }
+        });
     </script>
 </body>
-
 </html>
