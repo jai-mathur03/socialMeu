@@ -3,70 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - Socialite</title>
+    <title>Sign Up</title>
     <link rel="stylesheet" href="assets/style.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #f4f4f4;
-        }
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #333;
-            color: white;
-            padding: 10px 20px;
-            width: 100%;
-            position: fixed;
-            top: 0;
-            z-index: 1000;
-        }
-        .navbar img {
-            height: 40px;
-        }
-        .dropdown {
-            position: relative;
-        }
-        .dropdown button {
-            background-color: #444;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            cursor: pointer;
-        }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #555;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-            z-index: 1;
-        }
-        .dropdown-content a {
-            color: white;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-        .content-box {
-            margin-top: 80px;
-            background: white;
-            padding: 20px 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 400px;
-        }
         .profile-upload {
             margin: 20px 0;
             text-align: center;
@@ -78,40 +17,10 @@
             object-fit: cover;
             margin: 10px auto;
             display: block;
-            border: 2px solid #ddd;
-        }
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            margin: 10px 0;
-        }
-        button:hover {
-            background-color: #0056b3;
         }
         .error {
             color: red;
             margin: 5px 0;
-            font-size: 14px;
-        }
-        .b1 {
-            background-color: #28a745;
-        }
-        .b1:hover {
-            background-color: #218838;
         }
     </style>
 </head>
@@ -125,7 +34,6 @@
             </div>
         </div>
     </div>
-    
     <div class="content-box">
         <h2>Sign up:</h2>
         <form class="signup-form" id="signupForm" enctype="multipart/form-data">
@@ -133,7 +41,6 @@
                 <img id="profilePreview" src="https://via.placeholder.com/150" alt="Profile Preview" class="profile-preview">
                 <input type="file" id="profilePicture" accept="image/*" required>
             </div>
-            
             <input type="text" id="name" placeholder="Name" required><br>
             <input type="text" id="designation" placeholder="Designation" required><br>
             <input type="email" id="email" placeholder="Email" required><br>
@@ -142,19 +49,13 @@
             <p class="error" id="errorMessage"></p>
             <button type="submit">Sign Up</button>
         </form>
-        
         <h2 style="margin: 0%; margin-top:15px;">OR</h2>
         <div>
             <h4>Already a member?</h4>
             <a href="login.html"><button class="b1">Sign In</button></a>
         </div>
     </div>
-
     <script>
-        const API_BASE_URL = window.location.hostname === 'localhost' 
-            ? 'http://localhost:5002'
-            : 'https://social-ouf-k3dt.vercel.app';
-
         const profilePicture = document.getElementById('profilePicture');
         const profilePreview = document.getElementById('profilePreview');
         const signupForm = document.getElementById('signupForm');
@@ -173,7 +74,6 @@
 
         signupForm.addEventListener('submit', async function(event) {
             event.preventDefault();
-            
             const formData = new FormData();
             formData.append('name', document.getElementById('name').value);
             formData.append('designation', document.getElementById('designation').value);
@@ -183,13 +83,11 @@
             formData.append('profilePicture', document.getElementById('profilePicture').files[0]);
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+                const response = await fetch('http://localhost:5002/api/auth/register', {
                     method: 'POST',
                     body: formData
                 });
-
                 const data = await response.json();
-                
                 if (response.ok) {
                     alert(data.message);
                     window.location.href = "thankYou.html";
