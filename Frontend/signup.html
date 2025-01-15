@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <style>
+        .profile-upload {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .profile-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 10px auto;
+            display: block;
+        }
+        .error {
+            color: red;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <img src="hitachiLogo.png" alt="Socialite">
+        <div class="dropdown">
+            <button>Menu</button>
+            <div class="dropdown-content">
+                <a href="frontPage.html">Logout ></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-box">
+        <h2>Sign up:</h2>
+        <form class="signup-form" id="signupForm" enctype="multipart/form-data">
+            <div class="profile-upload">
+                <img id="profilePreview" src="https://via.placeholder.com/150" alt="Profile Preview" class="profile-preview">
+                <input type="file" id="profilePicture" accept="image/*" required>
+            </div>
+            <input type="text" id="name" placeholder="Name" required><br>
+            <input type="text" id="designation" placeholder="Designation" required><br>
+            <input type="email" id="email" placeholder="Email" required><br>
+            <input type="password" id="password" placeholder="Password" required><br>
+            <input type="password" id="confirmPassword" placeholder="Confirm Password" required><br>
+            <p class="error" id="errorMessage"></p>
+            <button type="submit">Sign Up</button>
+        </form>
+
+        <h2 style="margin: 0%; margin-top:15px;">OR</h2>
+        <div>
+            <h4>Already a member?</h4>
+            <a href="login.html"><button class="b1">Sign In</button></a>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5002' 
+            : 'https://social-novel-tbph.vercel.app/';
+        
+        const profilePicture = document.getElementById('profilePicture');
+        const profilePreview = document.getElementById('profilePreview');
+        const signupForm = document.getElementById('signupForm');
+        const errorMessage = document.getElementById('errorMessage');
+
+        profilePicture.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profilePreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        signupForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            formData.append('name', document.getElementById('name').value);
+            formData.append('designation', document.getElementById('designation').value);
+            formData.append('email', document.getElementById('email').value);
+            formData.append('password', document.getElementById('password').value);
+            formData.append('confirmPassword', document.getElementById('confirmPassword').value);
+            formData.append('profilePicture', document.getElementById('profilePicture').files[0]);
+
+            try {
+                const response = await fetch('${API_BASE_URL}/api/auth/register', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(data.message);
+                    window.location.href = "thankYou.html";
+                } else {
+                    errorMessage.textContent = data.message || "An error occurred during signup.";
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                errorMessage.textContent = "Failed to connect to the server.";
+            }
+        });
+    </script>
+</body>
+</html>

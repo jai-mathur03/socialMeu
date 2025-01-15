@@ -1,0 +1,180 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.logo {
+  /*logo class for socialite*/
+  font-family: "sans-serif"; /*default font*/
+  font-size: 30px;
+  font-weight: 600;
+}
+.nav {
+  /*css for top navbar*/
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  border-bottom: 1px solid black;
+  position: sticky; /*gets the navbar stick to the particular position , even if the user scrolls*/
+  top: 0;
+  background: white;
+  z-index: 4; /*putting on top of everything else*/
+}
+
+.nav .links a {
+  /*displaying navbar links like "about us", "suggestions" on navbar*/
+  text-decoration: none;
+  color: black;
+  cursor: pointer; /*gets the cursor to be pointed*/
+}
+
+.nav .links {
+  /*positioning navbar links */
+  display: flex;
+  gap: 20px; /*creates gap between navbar contents*/
+}
+.about {
+  padding-right: 30px;
+}
+.suggestion {
+  padding-left: 30px;
+}
+.profile {
+  /*profile container on top right*/
+  display: flex;
+  align-items: center;
+  gap: 10px; /*creates gap between logout button and the profile image*/
+}
+
+.profile img {
+  /*for profile image on top right*/
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.editProfile {
+  /*profile pic button*/
+  position: absolute;
+  top: 50px;
+  right: 20px;
+  margin-top: 10px;
+  padding: 10px 20px;
+  border: 1px solid black;
+  cursor: pointer; /*gets the cursor to be pointed*/
+}
+
+section {
+  /*for dividing the page into sections, with each section having bottom border*/
+  padding: 10px 20px;
+  border-bottom: 1px solid black;
+}
+.membersContainer {
+  /* members container for suggesstions section*/
+  display: flex;
+  overflow-x: scroll; /*horizontal scroll bar*/
+  padding: 20px;
+  border-top: 1px solid black;
+}
+
+.members {
+  /*positioning suggestion cards*/
+  display: flex;
+  gap: 10px;
+  overflow-x: auto; /*if the content overflows horizontally, an automatic scroll bar will appear on its own*/
+  white-space: nowrap; /*prevents the content from wrapping onto multiple lines*/
+  padding: 10px 0;
+}
+
+.suggestionCard {
+  /*styling inside suggetions card*/
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+  width: 150px;
+  background: #ececec;
+  border-radius: 8px;
+}
+
+.suggestionCard img {
+  /*images of suggestions card*/
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 1px solid black;
+}
+
+.suggestionCard button {
+  /*connect? button*/
+  margin-top: 10px;
+  padding: 5px 10px;
+  background: #154374;
+  color: white;
+  cursor: pointer; /*gets the cursor to be pointed*/
+}
+
+.suggestionCard button:hover {
+  background: #000000; /*button on hover colour*/
+}
+
+.dropMenu {
+  /*css for drop down menu for connections section*/
+  margin-bottom: 10px;
+}
+
+.dropButton {
+  /*for buttons like "connections" "requests"  and "Members" under connections section*/
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px;
+  font-size: 16px;
+  background: #f1f1f1;
+  border: 1px solid #ccc;
+  cursor: pointer; /*gets the cursor to be pointed*/
+  margin-bottom: 5px;
+}
+
+.menuContent a {
+  /*drop down menu content under */
+  display: block;
+  padding: 5px 10px;
+  color: #333;
+  background: #fff;
+  border: 1px solid #ccc;
+  margin-top: -1px;
+}
+
+.memberRow {
+  /*allignment of members next to the image*/
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.circularPic {
+  /*picture for members*/
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.joinButton {
+  /*join button, fixed on the page*/
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  border: 1px solid black;
+  cursor: pointer; /*gets the cursor to be pointed*/
+  background-color: black;
+  color: white;
+}
+
+.joinButton a:hover {
+  background-color: red;
+  color: #000000;
+}

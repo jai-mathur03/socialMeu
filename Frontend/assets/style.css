@@ -1,0 +1,185 @@
+body {
+  margin: 0; /* Remove default body margin */
+  font-family: Arial, sans-serif; /* Set default font */
+}
+
+.b1 {
+  background-color: black;
+  color: white;
+}
+.b1 a:hover {
+  background-color: red;
+  color: #000000;
+}
+/* Sign up page styling */
+.signup-form {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 250px;
+}
+
+.signup-form h2 {
+  margin-bottom: 20px;
+  text-align: center;
+  color: #333;
+}
+
+.signup-form input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.signup-form button {
+  width: 100%;
+  padding: 10px;
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.signup-form button:hover {
+  background-color: #218838;
+}
+
+.error {
+  color: red;
+  font-size: 14px;
+  margin-top: -5px;
+  margin-bottom: 10px;
+}
+
+/* Navbar styling */
+.navbar {
+  position: fixed; /* Fix navbar at the top */
+  top: 0;
+  width: 100%; /* Full width */
+  height: 30px; /* Set height */
+  display: flex; /* Flexbox for alignment */
+  align-items: center; /* Center items vertically */
+  justify-content: space-between; /* Space between logo and menu */
+  background-color: white; /* Background color */
+  color: black; /* Text color */
+  padding: 10px 20px; /* Padding for spacing */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Add shadow for depth */
+  z-index: 1000; /* Ensure navbar is above other content */
+}
+/* Logo styling */
+.navbar img {
+  height: 50px; /* Set logo height */
+  cursor: pointer; /* Pointer cursor for interactivity */
+}
+.dropdown {
+  position: relative; /* Position for dropdown menu */
+  display: inline-block; /* Inline block for layout */
+  margin-right: 30px; /* Add space to the right */
+}
+.dropdown button {
+  background-color: white; /* Button background */
+  color: black; /* Button text color */
+  border: none; /* Remove border */
+  padding: 10px; /* Add padding */
+  cursor: pointer; /* Pointer cursor */
+  font-size: 16px; /* Font size */
+}
+.dropdown button:hover {
+  background-color: black; /* Hover background color */
+  color: red; /* Hover text color */
+  transition: cubic-bezier(0.075, 0.82, 0.165, 1); /* Smooth hover transition */
+}
+.dropdown-content {
+  display: none; /* Initially hide dropdown content */
+  position: absolute; /* Absolute position for dropdown */
+  right: 0; /* Align to the right */
+  background-color: black; /* Background color */
+  color: white; /* Text color */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+  z-index: 1; /* Ensure visibility above other elements */
+  min-width: 150px; /* Minimum width */
+}
+.dropdown-content a {
+  color: white; /* Link text color */
+  padding: 10px; /* Add padding */
+  text-decoration: none; /* Remove underline */
+  display: block; /* Block layout */
+}
+.dropdown-content a:hover {
+  text-decoration: underline; /* Underline on hover */
+  color: red; /* Change text color on hover */
+}
+.dropdown:hover .dropdown-content {
+  display: block; /* Show dropdown on hover */
+}
+/* End of navbar styles */
+
+/* Sign-in box styling */
+.content-box {
+  margin: 100px auto; /* Center box with margin */
+  padding: 20px; /* Add padding inside box */
+  background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+  width: 300px; /* Box width */
+  text-align: center; /* Center text */
+  border-radius: 8px; /* Rounded corners */
+}
+.content-box h2 {
+  margin-bottom: 20px; /* Space below heading */
+  font-size: 20px; /* Font size */
+  color: #333; /* Text color */
+}
+.content-box button {
+  margin: 10px 5px; /* Spacing between buttons */
+  padding: 10px 20px; /* Button padding */
+  border: none; /* Remove border */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor */
+  font-size: 16px; /* Font size */
+}
+.content-box button.admin {
+  background-color: rgb(61, 61, 61); /* Admin button color */
+  color: white; /* Text color */
+}
+.content-box button.member {
+  background-color: rgb(61, 61, 61); /* Member button color */
+  color: white; /* Text color */
+}
+.content-box button:hover {
+  opacity: 0.9; /* Slightly fade on hover */
+  background-color: red; /* Change background on hover */
+  color: black; /* Change text color on hover */
+}
+.social-login {
+  margin-top: 20px; /* Space above social buttons */
+}
+.social-login button {
+  display: block; /* Block layout for buttons */
+  margin: 10px auto; /* Center buttons */
+  padding: 10px 20px; /* Button padding */
+  width: 90%; /* Button width */
+  font-size: 16px; /* Font size */
+  border: none; /* Remove border */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor */
+}
+.social-login button.google {
+  background-color: #db4437; /* Google button color */
+  color: white; /* Text color */
+}
+.social-login button.apple {
+  background-color: #000000; /* Apple button color */
+  color: white; /* Text color */
+}
+.social-login button.x {
+  background-color: #1da1f2; /* X (Twitter) button color */
+  color: white; /* Text color */
+}
+.social-login button:hover {
+  opacity: 0.8; /* Slight fade on hover */
+}

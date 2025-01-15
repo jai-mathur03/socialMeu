@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width">
+    <title>Socialite</title>
+    <link rel="stylesheet" type="text/css" href="assets/styles.css"> <!--calling styles.css-->
+</head>
+
+<body>
+    <div class="nav"> <!--creating navbar-->
+        <div class="logo">Socialite</div>
+        <div class="links"> <!--creating links for internal anchoring on the navbar-->
+            <!--this creates automatic scroling inside the webpage through js-->
+            <a class="about" onclick="scrollToSection('home')">About us</a>
+            <a class="suggestion" onclick="scrollToSection('suggestions')">Suggestions</a>
+        </div>
+        <div class="profile">
+            <!--profile picture--><!--external image is used same pic is used throughout the webpage-->
+            <!-- <img id="profile-pic" src="https://via.placeholder.com/150" alt="Profile Picture"> -->
+            <!-- <a href="login.html"><button>Logout</button></a> logout button next to profile pic -->
+        </div>
+    </div>
+
+    <!-- <button class="editProfile"> 
+        Edit Profile Picture
+    </button>"edit profile pic button" -->
+
+    <section id="home"> <!--home section-->
+        <h1>About us</h1>
+        <p>-about us-</p>
+        <div id="dynamic-content">
+            <!-- Placeholder for dynamic content -->
+        </div>
+    </section>
+
+    <section id="suggestions"> <!--suggestions section-->
+        <h1>Suggestions</h1>
+
+        <div class="membersContainer"> <!--creating members for the suggestions section-->
+            <div class="members">
+                <div class="suggestionCard">
+                    <img src="https://via.placeholder.com/150" alt="Profile Picture">
+                    <p>Name: Member 1</p>
+                    <p>Designation: Designer</p>
+                    <button onclick="toggleConnect(this)">Connect?</button>
+                </div>
+
+                <div class="suggestionCard">
+                    <img src="https://via.placeholder.com/150" alt="Profile Picture">
+                    <p>Name: Member 2</p>
+                    <p>Designation: Developer</p>
+                    <button onclick="toggleConnect(this)">Connect?</button>
+                </div>
+
+                <div class="suggestionCard">
+                    <img src="https://via.placeholder.com/150" alt="Profile Picture">
+                    <p>Name: Member 3</p>
+                    <p>Designation: Manager</p>
+                    <button onclick="toggleConnect(this)">Connect?</button>
+                </div>
+
+                <div class="suggestionCard">
+                    <img src="https://via.placeholder.com/150" alt="Profile Picture">
+                    <p>Name: Member 4</p>
+                    <p>Designation: Analyst</p>
+                    <button onclick="toggleConnect(this)">Connect?</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    </section>
+    <a href="signup.html"><button class="joinButton" style="width: 100px; height: 50px;">Join</button></a>
+    <!--join button , fixed position-->
+
+    <script>
+        function toggleConnect(button) { //function for connect button on suggestions card.
+            /*function is made so that, the connect button shows "connect?" by default , and 
+            as soon as the button is clicked, it shows "connected". this can be reversed by clicking the button again*/
+            button.textContent = button.textContent === 'Connect?' ? 'Requested' : 'Connect?';
+        }
+        function scrollToSection(id) { //function used to scroll automatically when links on navbar are clicked.
+            /*when "about us", "suggestions", "connections" are clicked on the navbar, the webpage automatically scrolls
+            and takes you to the section via this function*/
+            const section = document.getElementById(id);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/getContent')
+                .then(response => response.json())
+                .then(data => {
+                    const contentSection = document.getElementById('home'); // Replace with your actual section ID
+                    contentSection.innerHTML = `<h1>About us</h1><p>${data.content}</p>`;
+                })
+                .catch(error => console.error('Error fetching content:', error));
+        });
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</body>
+
+</html>

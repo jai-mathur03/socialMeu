@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Meta information for character encoding and responsive design -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <!-- Link to external stylesheet -->
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+
+<body>
+    <!-- Main content container for admin login -->
+    <div class="content-box">
+        <!-- Heading for the login section -->
+        <h2>Sign in:</h2>
+        <!-- Login form -->
+        <form action="submit">
+            <!-- Username input -->
+            <p style="margin-bottom: 2px; text-align:left;">Username:</p>
+            <input type="text" placeholder="Enter username" style="width:100%">
+            <br>
+            <!-- Password input -->
+            <p style="margin-bottom: 2px; text-align:left;">Password:</p>
+            <input type="password" placeholder="Enter password" style="width:100%">
+            <!-- Admin key input -->
+            <!-- <p style="margin-bottom: 2px; text-align:left;">Key:</p>
+            <input type="password" placeholder="Enter admin key" style="width:100%"> -->
+
+        </form>
+        <button class="b1" onclick="location.href='main.html'">
+            Login
+        </button>
+        <br>
+        <!-- Divider with OR -->
+        <h2 style="margin: 0%; margin-top:15px;">OR</h2>
+        <!-- Social login options -->
+        <div class="social-login">
+            <!-- Google platform script -->
+            <script src="https://apis.google.com/js/platform.js" async defer></script>
+            <!-- Social login buttons -->
+            <button class="google" onclick="location.href='main.html'">Sign in with Google</button>
+            <button class="apple" onclick="location.href='main.html'">Sign in with Apple</button>
+            <button class="x" onclick="location.href='main.html'">Sign in with X</button>
+        </div>
+    </div>
+</body>
+
+</html>
