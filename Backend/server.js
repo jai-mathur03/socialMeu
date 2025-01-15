@@ -31,13 +31,14 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 app.use('/uploads', express.static('uploads'));
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect("mongodb+srv://jaiadityamathur2022:nA7yvXLpXVcfnCye@cluster0.eto5t.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
   .then(() => {
     console.log('MongoDB Connected Successfully');
     initializeAdmin();
     initializeContent();
   })
   .catch(err => console.error('MongoDB Connection Failed:', err));
+
 
 // Schemas
 const userSchema = new mongoose.Schema({
