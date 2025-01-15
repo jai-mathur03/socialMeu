@@ -62,50 +62,124 @@
         const API_BASE_URL = window.location.hostname === 'localhost' 
             ? 'http://localhost:5002' 
             : 'https://social-ouf.vercel.app';
+        
         const profilePicture = document.getElementById('profilePicture');
         const profilePreview = document.getElementById('profilePreview');
         const signupForm = document.getElementById('signupForm');
         const errorMessage = document.getElementById('errorMessage');
-
+        
+        // Handle profile picture preview
         profilePicture.addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    errorMessage.textContent = "Please select an image file.";
+                    profilePicture.value = '';
+                    return;
+                }
+                
+                // Validate file size (e.g., 5MB max)
+                if (file.size > 5 * 1024 * 1024) {
+                    errorMessage.textContent = "File size should be less than 5MB.";
+                    profilePicture.value = '';
+                    return;
+                }
+        
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     profilePreview.src = e.target.result;
                 };
+                reader.onerror = function() {
+                    errorMessage.textContent = "Error reading file.";
+                    profilePicture.value = '';
+                };
                 reader.readAsDataURL(file);
             }
         });
-
+        
+        // Handle form submission
         signupForm.addEventListener('submit', async function(event) {
             event.preventDefault();
-
-            const formData = new FormData();
-            formData.append('name', document.getElementById('name').value);
-            formData.append('designation', document.getElementById('designation').value);
-            formData.append('email', document.getElementById('email').value);
-            formData.append('password', document.getElementById('password').value);
-            formData.append('confirmPassword', document.getElementById('confirmPassword').value);
-            formData.append('profilePicture', document.getElementById('profilePicture').files[0]);
-
+            errorMessage.textContent = ""; // Clear any previous errors
+            
             try {
+                // Validate form fields
+                const name = document.getElementById('name').value.trim();
+                const designation = document.getElementById('designation').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                // Basic validation
+                if (!name || !designation || !email || !password || !confirmPassword) {
+                    errorMessage.textContent = "All fields are required.";
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    errorMessage.textContent = "Passwords do not match.";
+                    return;
+                }
+                
+                // Email validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    errorMessage.textContent = "Please enter a valid email address.";
+                    return;
+                }
+        
+                // Create FormData
+                const formData = new FormData();
+                formData.append('name', name);
+                formData.append('designation', designation);
+                formData.append('email', email);
+                formData.append('password', password);
+                formData.append('confirmPassword', confirmPassword);
+        
+                // Handle profile picture
+                const fileInput = document.getElementById('profilePicture');
+                if (fileInput.files[0]) {
+                    formData.append('profilePicture', fileInput.files[0]);
+                }
+        
+                // Show loading state
+                const submitButton = signupForm.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Signing up...';
+        
+                // Make API request
                 const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
                     method: 'POST',
                     body: formData
                 });
-
-                const data = await response.json();
-
+        
+                // Parse response
+                let data;
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    const textData = await response.text();
+                    throw new Error(textData || 'Server error occurred');
+                }
+        
+                // Handle response
                 if (response.ok) {
-                    alert(data.message);
+                    alert(data.message || 'Registration successful!');
                     window.location.href = "thankYou.html";
                 } else {
-                    errorMessage.textContent = data.message || "An error occurred during signup.";
+                    throw new Error(data.message || 'Registration failed');
                 }
+        
             } catch (error) {
-                console.error('Error:', error);
-                errorMessage.textContent = "Failed to connect to the server.";
+                console.error('Signup error:', error);
+                errorMessage.textContent = error.message || "Failed to connect to the server. Please try again.";
+            } finally {
+                // Reset loading state
+                const submitButton = signupForm.querySelector('button[type="submit"]');
+                submitButton.disabled = false;
+                submitButton.textContent = 'Sign Up';
             }
         });
     </script>
