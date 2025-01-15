@@ -140,21 +140,42 @@ const initializeContent = async () => {
 // Auth Routes
 app.post('/api/auth/register', upload.single('profilePicture'), async (req, res) => {
     try {
+        // Add debugging logs
+        console.log('Register endpoint hit');
+        console.log('Request body:', req.body);
+        console.log('File:', req.file);
+
         const { name, designation, email, password, confirmPassword } = req.body;
 
+        // Validate required fields
+        if (!name || !designation || !email || !password || !confirmPassword) {
+            return res.status(400).json({ 
+                success: false,
+                message: 'All fields are required' 
+            });
+        }
+
         if (password !== confirmPassword) {
-            return res.status(400).json({ message: 'Passwords do not match' });
+            return res.status(400).json({ 
+                success: false,
+                message: 'Passwords do not match' 
+            });
         }
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
+            return res.status(400).json({ 
+                success: false,
+                message: 'User already exists' 
+            });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const profilePicturePath = req.file?.path || 'https://via.placeholder.com/150';
+        
+        // Set default profile picture if no file uploaded
+        const profilePicturePath = req.file ? req.file.path : 'https://via.placeholder.com/150';
 
-        await User.create({
+        const user = new User({
             name,
             designation,
             email,
@@ -162,10 +183,20 @@ app.post('/api/auth/register', upload.single('profilePicture'), async (req, res)
             profilePicture: profilePicturePath
         });
 
-        res.status(201).json({ message: 'User registered. Awaiting admin approval.' });
+        await user.save();
+
+        res.status(201).json({
+            success: true,
+            message: 'User registered successfully. Awaiting admin approval.'
+        });
+
     } catch (error) {
         console.error('Registration error:', error);
-        res.status(500).json({ message: 'Server error' });
+        // Ensure we're sending a proper JSON response even for errors
+        res.status(500).json({
+            success: false,
+            message: 'Server error during registration. Please try again.'
+        });
     }
 });
 
