@@ -210,7 +210,7 @@
             }
 
             try {
-                const response = await fetch('/api/users/me', {
+                const response = await fetch(`${API_BASE_URL}/api/users/me`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -248,7 +248,7 @@
 
         async function loadConnections() {
             try {
-                const response = await fetch('/api/connections', {
+                const response = await fetch(`${API_BASE_URL}/api/connections`, {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
                 const connections = await response.json();
@@ -270,7 +270,7 @@
 
         async function loadRequests() {
             try {
-                const response = await fetch('/api/connections/requests', {
+                const response = await fetch(`${API_BASE_URL}/api/connections/requests`, {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
                 const requests = await response.json();
@@ -294,7 +294,7 @@
 
         async function loadMembers() {
             try {
-                const response = await fetch('/api/members', {
+                const response = await fetch(`${API_BASE_URL}/api/members`, {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
                 const members = await response.json();
@@ -325,7 +325,7 @@
         }
         async function sendRequest(userId) {
             try {
-                const response = await fetch(`/api/connections/request/${userId}`, {
+                const response = await fetch(`${API_BASE_URL}/api/connections/request/${userId}`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
@@ -342,7 +342,7 @@
 
         async function respondToRequest(userId, action) {
             try {
-                const response = await fetch(`/api/connections/respond/${userId}`, {
+                const response = await fetch(`${API_BASE_URL}/api/connections/respond/${userId}`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -367,7 +367,7 @@
 
         async function loadPendingRequests() {
             try {
-                const response = await fetch('/api/admin/pending-requests', {
+                const response = await fetch(`${API_BASE_URL}/api/admin/pending-requests`, {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
 
@@ -418,7 +418,7 @@
 
         async function fetchContent() {
             try {
-                const response = await fetch('/getContent');
+                const response = await fetch(`${API_BASE_URL}/getContent`);
                 const data = await response.json();
                 document.getElementById('markdown-editor').value = data.content || '';
             } catch (error) {
@@ -429,7 +429,7 @@
         async function updateContent() {
             try {
                 const content = document.getElementById('markdown-editor').value;
-                const response = await fetch('/updateContent', {
+                const response = await fetch(`${API_BASE_URL}/updateContent`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ content })
@@ -447,7 +447,7 @@
 
         async function fetchAboutUsContent() {
             try {
-                const response = await fetch('/getContent');
+                const response = await fetch(`${API_BASE_URL}/getContent`);
                 const data = await response.json();
                 
                 if (response.ok && data.content) {
