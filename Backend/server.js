@@ -3,22 +3,16 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
-const path = require('path');
 const multer = require('multer');
-const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
-
 const app = express();
 
 // Multer configuration for memory storage
 const storage = multer.memoryStorage();
-const upload = multer({ 
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 } // Limit file size to 5MB
-});
+const upload = multer({ storage });
 
 // Middleware
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json());
 app.use(cors({
   origin: ['https://social-ouf-k3dt.vercel.app', 'http://localhost:5002'],
   credentials: true
@@ -35,16 +29,20 @@ mongoose.connect("mongodb+srv://jaiadityamathur2022:nA7yvXLpXVcfnCye@cluster0.et
   .catch(err => console.error('MongoDB Connection Failed:', err));
 
 // Schemas
+const profilePictureSchema = new mongoose.Schema({
+  data: Buffer,
+  contentType: String,
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  uploadDate: { type: Date, default: Date.now }
+});
+
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   designation: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   isApproved: { type: Boolean, default: false },
-  profilePicture: {
-    data: Buffer,           // Store actual image data as Buffer
-    contentType: String     // Store mime type of image
-  },
+  profilePictureId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProfilePicture' },
   connections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   requests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
@@ -63,14 +61,9 @@ const contentSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 const Admin = mongoose.model('Admin', adminSchema);
 const Content = mongoose.model('Content', contentSchema);
+const ProfilePicture = mongoose.model('ProfilePicture', profilePictureSchema);
 
 // Helper function to convert file to Base64
-const convertToBase64 = (file) => {
-  return {
-    data: file.buffer.toString('base64'),
-    contentType: file.mimetype
-  };
-};
 
 // Authentication Middleware
 const authenticate = (req, res, next) => {
@@ -131,6 +124,20 @@ const initializeContent = async () => {
 
 // Routes
 // Auth Routes
+app.get('/api/profilePicture/:id', async (req, res) => {
+  try {
+    const profilePicture = await ProfilePicture.findById(req.params.id);
+    if (!profilePicture) {
+      return res.status(404).send('Profile picture not found');
+    }
+    res.set('Content-Type', profilePicture.contentType);
+    res.send(profilePicture.data);
+  } catch (error) {
+    res.status(500).send('Server error');
+  }
+});
+
+
 app.post('/api/auth/register', upload.single('profilePicture'), async (req, res) => {
   try {
     const { name, designation, email, password, confirmPassword } = req.body;
