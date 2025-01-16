@@ -3,19 +3,14 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
-const path = require('path');
+const path = require('path');  // Make sure this import is at the top
 const multer = require('multer');
 require('dotenv').config();
 const app = express();
 
-// Multer configuration for memory storage
+// Multer configuration
 const storage = multer.memoryStorage();
-const upload = multer({ 
-    storage,
-    limits: {
-        fileSize: 5 * 1024 * 1024 // 5MB limit
-    }
-});
+const upload = multer({ storage });
 
 // Middleware
 app.use(express.json());
@@ -23,8 +18,9 @@ app.use(cors({
     origin: ['https://social-ouf-k3dt.vercel.app', 'http://localhost:5002'],
     credentials: true
 }));
-app.use(express.static(path.join(__dirname, '../frontend')));
 
+
+app.use(express.static(path.join(__dirname, '../frontend')));
 // MongoDB Connection
 mongoose.connect("mongodb+srv://jaiadityamathur2022:nA7yvXLpXVcfnCye@cluster0.eto5t.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
     .then(() => {
@@ -34,525 +30,410 @@ mongoose.connect("mongodb+srv://jaiadityamathur2022:nA7yvXLpXVcfnCye@cluster0.et
     })
     .catch(err => console.error('MongoDB Connection Failed:', err));
 
+
 // Schemas
 const profilePictureSchema = new mongoose.Schema({
-  data: Buffer,
-  contentType: String,
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  uploadDate: { type: Date, default: Date.now }
-}, {
-  collection: 'pfps' // This explicitly sets the collection name to 'pfps'
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  data: { type: Buffer, required: true },
+  contentType: { type: String, required: true }
 });
 
 const userSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    designation: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    isApproved: { type: Boolean, default: false },
-    profilePictureId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProfilePicture' },
-    connections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    requests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+  name: { type: String, required: true },
+  designation: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  isApproved: { type: Boolean, default: false },
+  profilePictureId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProfilePicture' },
+  connections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  requests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
-
 const adminSchema = new mongoose.Schema({
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true }
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true }
 });
 
 const contentSchema = new mongoose.Schema({
-    content: { type: String, required: true },
-    lastUpdated: { type: Date, default: Date.now }
+  content: { type: String, required: true },
+  lastUpdated: { type: Date, default: Date.now }
 });
 
 // Models
+const ProfilePicture = mongoose.model('ProfilePicture', profilePictureSchema);
 const User = mongoose.model('User', userSchema);
 const Admin = mongoose.model('Admin', adminSchema);
 const Content = mongoose.model('Content', contentSchema);
-const ProfilePicture = mongoose.model('ProfilePicture', profilePictureSchema);
 
 // Authentication Middleware
 const authenticate = (req, res, next) => {
-    try {
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) return res.status(401).json({ message: 'Authentication required' });
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;
-        next();
-    } catch (err) {
-        res.status(401).json({ message: 'Invalid token' });
-    }
+  try {
+    const token = req.header('Authorization')?.split(' ')[1];
+    if (!token) return res.status(401).json({ message: 'Authentication required' });
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    res.status(401).json({ message: 'Invalid token' });
+  }
 };
 
 // Admin Middleware
 const verifyAdmin = async (req, res, next) => {
-    try {
-        const admin = await Admin.findById(req.user.id);
-        if (!admin) return res.status(403).json({ message: 'Admin access required' });
-        next();
-    } catch (err) {
-        res.status(500).json({ message: 'Server error' });
-    }
+  try {
+    const admin = await Admin.findById(req.user.id);
+    if (!admin) return res.status(403).json({ message: 'Admin access required' });
+    next();
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
 };
 
 // Initialize Admin
 const initializeAdmin = async () => {
-    try {
-        const admins = [
-            { email: "Socialite@gmail.com", password: "adminSocialite123" },
-            { email: "Hitachi@gmail.com", password: "adminHitachi123" }
-        ];
-        for (const admin of admins) {
-            const existingAdmin = await Admin.findOne({ email: admin.email });
-            if (!existingAdmin) {
-                const hashedPassword = await bcrypt.hash(admin.password, 10);
-                await Admin.create({ email: admin.email, password: hashedPassword });
-                console.log(`Admin initialized: ${admin.email}`);
-            }
-        }
-    } catch (error) {
-        console.error('Admin initialization error:', error);
+  try {
+    const admins = [
+      { email: "Socialite@gmail.com", password: "adminSocialite123" },
+      { email: "Hitachi@gmail.com", password: "adminHitachi123" }
+    ];
+    
+    for (const admin of admins) {
+      const existingAdmin = await Admin.findOne({ email: admin.email });
+      if (!existingAdmin) {
+        const hashedPassword = await bcrypt.hash(admin.password, 10);
+        await Admin.create({ email: admin.email, password: hashedPassword });
+        console.log(`Admin initialized: ${admin.email}`);
+      }
     }
+  } catch (error) {
+    console.error('Admin initialization error:', error);
+  }
 };
 
 // Initialize Content
 const initializeContent = async () => {
-    try {
-        const existingContent = await Content.findOne();
-        if (!existingContent) {
-            await Content.create({ content: 'Welcome to Socialite!' });
-            console.log('Default content initialized');
-        }
-    } catch (error) {
-        console.error('Content initialization error:', error);
+  try {
+    const existingContent = await Content.findOne();
+    if (!existingContent) {
+      await Content.create({ content: 'Welcome to Socialite!' });
+      console.log('Default content initialized');
     }
+  } catch (error) {
+    console.error('Content initialization error:', error);
+  }
 };
 
-// Profile Picture Routes
-app.get('/api/profilePicture/:id', async (req, res) => {
-    try {
-        const profilePicture = await ProfilePicture.findById(req.params.id);
-        if (!profilePicture) {
-            return res.status(404).send('Profile picture not found');
-        }
-        res.set('Content-Type', profilePicture.contentType);
-        res.send(profilePicture.data);
-    } catch (error) {
-        res.status(500).send('Server error');
-    }
-});
-
+// Routes
 // Auth Routes
 app.post('/api/auth/register', upload.single('profilePicture'), async (req, res) => {
   try {
-    const { name, designation, email, password, confirmPassword } = req.body;
-    
-    if (password !== confirmPassword) {
-      return res.status(400).json({ message: 'Passwords do not match' });
-    }
+      const { name, designation, email, password, confirmPassword } = req.body;
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
-    // Create the user first
-    const newUser = new User({
-      name,
-      designation,
-      email,
-      password: hashedPassword
-    });
-
-    // If there's a profile picture, create and save it
-    if (req.file) {
-      try {
-        const profilePicture = new ProfilePicture({
-          data: req.file.buffer,
-          contentType: req.file.mimetype,
-          userId: newUser._id
-        });
-
-        // Save the profile picture
-        const savedProfilePicture = await profilePicture.save();
-        
-        // Update user with profile picture reference
-        newUser.profilePictureId = savedProfilePicture._id;
-      } catch (error) {
-        console.error('Profile picture save error:', error);
-        // Continue with user creation even if profile picture fails
+      if (password !== confirmPassword) {
+          return res.status(400).json({ message: 'Passwords do not match' });
       }
-    }
 
-    // Save the user
-    await newUser.save();
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+          return res.status(400).json({ message: 'User already exists' });
+      }
 
-    res.status(201).json({ message: 'User registered. Awaiting admin approval.' });
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create user first
+      const newUser = await User.create({
+          name,
+          designation,
+          email,
+          password: hashedPassword
+      });
+
+      // Store profile picture if provided
+      if (req.file) {
+          const profilePicture = new ProfilePicture({
+              userId: newUser._id,
+              data: req.file.buffer,
+              contentType: req.file.mimetype
+          });
+          const savedPicture = await profilePicture.save();
+          
+          // Update user with profile picture reference
+          newUser.profilePictureId = savedPicture._id;
+          await newUser.save();
+      }
+
+      res.status(201).json({ message: 'User registered. Awaiting admin approval.' });
   } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({ message: 'Server error during registration' });
+      console.error('Registration error:', error);
+      res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/profilePicture/:userId', async (req, res) => {
+  try {
+      const user = await User.findById(req.params.userId);
+      if (!user || !user.profilePictureId) {
+          return res.redirect('https://via.placeholder.com/150');
+      }
+
+      const profilePicture = await ProfilePicture.findById(user.profilePictureId);
+      if (!profilePicture) {
+          return res.redirect('https://via.placeholder.com/150');
+      }
+
+      res.set('Content-Type', profilePicture.contentType);
+      res.send(profilePicture.data);
+  } catch (error) {
+      console.error('Error serving profile picture:', error);
+      res.redirect('https://via.placeholder.com/150');
   }
 });
 
 app.post('/api/auth/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        const user = await User.findOne({ email });
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
 
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        if (!user.isApproved) {
-            return res.status(403).json({ message: 'Account pending approval' });
-        }
-
-        const validPassword = await bcrypt.compare(password, user.password);
-        if (!validPassword) {
-            return res.status(400).json({ message: 'Invalid password' });
-        }
-
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-        const userData = user.toObject();
-        delete userData.password;
-
-        if (user.profilePictureId) {
-            userData.profilePicture = `/api/profilePicture/${user.profilePictureId}`;
-        } else {
-            userData.profilePicture = 'https://via.placeholder.com/150';
-        }
-
-        res.json({ token, user: userData });
-    } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).json({ message: 'Server error' });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
+
+    if (!user.isApproved) {
+      return res.status(403).json({ message: 'Account pending approval' });
+    }
+
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(400).json({ message: 'Invalid password' });
+    }
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    res.json({ token, user: { ...user.toObject(), password: undefined } });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 app.post('/api/auth/admin-login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        const admin = await Admin.findOne({ email });
-        if (!admin) {
-            return res.status(404).json({ message: 'Admin not found' });
-        }
+  try {
+    const { email, password } = req.body;
+    const admin = await Admin.findOne({ email });
 
-        const validPassword = await bcrypt.compare(password, admin.password);
-        if (!validPassword) {
-            return res.status(400).json({ message: 'Invalid password' });
-        }
-
-        const token = jwt.sign(
-            { id: admin._id, isAdmin: true },
-            process.env.JWT_SECRET,
-            { expiresIn: '1d' }
-        );
-        res.json({ token });
-    } catch (error) {
-        console.error('Admin login error:', error);
-        res.status(500).json({ message: 'Server error' });
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin not found' });
     }
+
+    const validPassword = await bcrypt.compare(password, admin.password);
+    if (!validPassword) {
+      return res.status(400).json({ message: 'Invalid password' });
+    }
+
+    const token = jwt.sign(
+      { id: admin._id, isAdmin: true },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+    res.json({ token });
+  } catch (error) {
+    console.error('Admin login error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 // User Routes
 app.get('/api/users/me', authenticate, async (req, res) => {
-    try {
-        if (req.user.isAdmin) {
-            const admin = await Admin.findById(req.user.id);
-            if (admin) {
-                return res.json({ isAdmin: true });
-            }
-        }
-
-        const user = await User.findById(req.user.id);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        const userData = user.toObject();
-        delete userData.password;
-
-        if (user.profilePictureId) {
-            userData.profilePicture = `/api/profilePicture/${user.profilePictureId}`;
-        } else {
-            userData.profilePicture = 'https://via.placeholder.com/150';
-        }
-
-        res.json({ isAdmin: false, ...userData });
-    } catch (error) {
-        console.error('Get user error:', error);
-        res.status(500).json({ message: 'Server error' });
+  try {
+    if (req.user.isAdmin) {
+      const admin = await Admin.findById(req.user.id);
+      if (admin) {
+        return res.json({ isAdmin: true });
+      }
     }
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ isAdmin: false, ...user.toObject(), password: undefined });
+  } catch (error) {
+    console.error('Get user error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 // Connection Routes
 app.get('/api/members', authenticate, async (req, res) => {
-    try {
-        const currentUser = await User.findById(req.user.id);
-        const members = await User.find({
-            _id: { $ne: req.user.id },
-            isApproved: true
-        }).select('name profilePictureId _id');
+  try {
+      const currentUser = await User.findById(req.user.id);
+      const members = await User.find({
+          _id: { $ne: req.user.id },
+          isApproved: true
+      }).select('name profilePictureId _id');
 
-        const membersWithStatus = await Promise.all(members.map(async (member) => {
-            const memberData = member.toObject();
-            if (member.profilePictureId) {
-                memberData.profilePicture = `/api/profilePicture/${member.profilePictureId}`;
-            } else {
-                memberData.profilePicture = 'https://via.placeholder.com/150';
-            }
-            return {
-                ...memberData,
-                isConnected: (currentUser.connections || []).includes(member._id),
-                requestSent: (member.requests || []).includes(currentUser._id),
-                requestReceived: (currentUser.requests || []).includes(member._id)
-            };
-        }));
+      const membersWithStatus = members.map(member => ({
+          ...member.toObject(),
+          isConnected: (currentUser.connections || []).includes(member._id),
+          requestSent: (member.requests || []).includes(currentUser._id),
+          requestReceived: (currentUser.requests || []).includes(member._id)
+      }));
 
-        res.json(membersWithStatus);
-    } catch (error) {
-        console.error('Get members error:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
+      res.json(membersWithStatus);
+  } catch (error) {
+      console.error('Get members error:', error);
+      res.status(500).json({ message: 'Server error' });
+  }
 });
-
 app.get('/api/connections', authenticate, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id)
-            .populate('connections', 'name designation email profilePictureId');
-
-        const connectionsWithPictures = await Promise.all(user.connections.map(async (connection) => {
-            const connectionData = connection.toObject();
-            if (connection.profilePictureId) {
-                connectionData.profilePicture = `/api/profilePicture/${connection.profilePictureId}`;
-            } else {
-                connectionData.profilePicture = 'https://via.placeholder.com/150';
-            }
-            return connectionData;
-        }));
-
-        res.json(connectionsWithPictures);
-    } catch (error) {
-        console.error('Get connections error:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
+  try {
+    const user = await User.findById(req.user.id)
+      .populate('connections', 'name designation email profilePicture');
+    res.json(user.connections);
+  } catch (error) {
+    console.error('Get connections error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 app.get('/api/connections/requests', authenticate, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id)
-            .populate('requests', 'name profilePictureId');
-
-        const requestsWithPictures = await Promise.all(user.requests.map(async (request) => {
-            const requestData = request.toObject();
-            if (request.profilePictureId) {
-                requestData.profilePicture = `/api/profilePicture/${request.profilePictureId}`;
-            } else {
-                requestData.profilePicture = 'https://via.placeholder.com/150';
-            }
-            return requestData;
-        }));
-
-        res.json(requestsWithPictures);
-    } catch (error) {
-        console.error('Get requests error:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
+  try {
+    const user = await User.findById(req.user.id)
+      .populate('requests', 'name profilePicture');
+    res.json(user.requests);
+  } catch (error) {
+    console.error('Get requests error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 app.post('/api/connections/request/:id', authenticate, async (req, res) => {
-    try {
-        const toUser = await User.findById(req.params.id);
-        const fromUser = await User.findById(req.user.id);
-        
-        if (!toUser || !fromUser) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        if (toUser.requests.includes(fromUser._id)) {
-            return res.status(400).json({ message: 'Request already sent' });
-        }
-
-        toUser.requests.push(fromUser._id);
-        await toUser.save();
-        
-        res.json({ message: 'Connection request sent' });
-    } catch (error) {
-        console.error('Send request error:', error);
-        res.status(500).json({ message: 'Server error' });
+  try {
+    const toUser = await User.findById(req.params.id);
+    const fromUser = await User.findById(req.user.id);
+    
+    if (!toUser || !fromUser) {
+      return res.status(404).json({ message: 'User not found' });
     }
+    
+    if (toUser.requests.includes(fromUser._id)) {
+      return res.status(400).json({ message: 'Request already sent' });
+    }
+    
+    toUser.requests.push(fromUser._id);
+    await toUser.save();
+    res.json({ message: 'Connection request sent' });
+  } catch (error) {
+    console.error('Send request error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 app.post('/api/connections/respond/:id', authenticate, async (req, res) => {
-    try {
-        const { action } = req.body;
-        const currentUser = await User.findById(req.user.id);
-        const requestUser = await User.findById(req.params.id);
-
-        if (!currentUser || !requestUser) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        currentUser.requests = currentUser.requests.filter(
-            id => id.toString() !== req.params.id
-        );
-
-        if (action === 'accept') {
-            currentUser.connections.push(req.params.id);
-            requestUser.connections.push(req.user.id);
-            await requestUser.save();
-        }
-
-        await currentUser.save();
-        res.json({ message: `Request ${action}ed successfully` });
-    } catch (error) {
-        console.error('Respond to request error:', error);
-        res.status(500).json({ message: 'Server error' });
+  try {
+    const { action } = req.body;
+    const currentUser = await User.findById(req.user.id);
+    const requestUser = await User.findById(req.params.id);
+    
+    if (!currentUser || !requestUser) {
+      return res.status(404).json({ message: 'User not found' });
     }
-});
-
-// Admin Routes
-// Admin Routes
-app.get('/api/admin/pending-requests', authenticate, verifyAdmin, async (req, res) => {
-    try {
-        const pendingUsers = await User.find({ isApproved: false })
-            .select('name email designation profilePictureId');
-
-        const pendingUsersWithPictures = await Promise.all(pendingUsers.map(async (user) => {
-            const userData = user.toObject();
-            if (user.profilePictureId) {
-                userData.profilePicture = `/api/profilePicture/${user.profilePictureId}`;
-            } else {
-                userData.profilePicture = 'https://via.placeholder.com/150';
-            }
-            return userData;
-        }));
-
-        res.json(pendingUsersWithPictures);
-    } catch (error) {
-        console.error('Get pending requests error:', error);
-        res.status(500).json({ message: 'Server error' });
+    
+    currentUser.requests = currentUser.requests.filter(
+      id => id.toString() !== req.params.id
+    );
+    
+    if (action === 'accept') {
+      currentUser.connections.push(req.params.id);
+      requestUser.connections.push(req.user.id);
+      await requestUser.save();
     }
-});
-
-app.put('/api/admin/approve/:id', authenticate, verifyAdmin, async (req, res) => {
-    try {
-        const user = await User.findById(req.params.id);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        user.isApproved = true;
-        await user.save();
-        res.json({ message: 'User approved successfully' });
-    } catch (error) {
-        console.error('Approve user error:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
+    
+    await currentUser.save();
+    res.json({ message: `Request ${action}ed successfully` });
+  } catch (error) {
+    console.error('Respond to request error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 app.delete('/api/admin/reject/:id', authenticate, verifyAdmin, async (req, res) => {
-    try {
-        // Find user and their profile picture
-        const user = await User.findById(req.params.id);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Delete profile picture if it exists
-        if (user.profilePictureId) {
-            await ProfilePicture.findByIdAndDelete(user.profilePictureId);
-        }
-
-        // Delete user from other users' connections and requests
-        await User.updateMany(
-            { $or: [
-                { connections: user._id },
-                { requests: user._id }
-            ]},
-            { 
-                $pull: {
-                    connections: user._id,
-                    requests: user._id
-                }
-            }
-        );
-
-        // Delete the user
-        await user.deleteOne();
-        
-        res.json({ message: 'User rejected and removed' });
-    } catch (error) {
-        console.error('Reject user error:', error);
-        res.status(500).json({ message: 'Server error' });
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
+    res.json({ message: 'User rejected and removed' });
+  } catch (error) {
+    console.error('Reject user error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
-// Content Routes
 app.get('/getContent', async (req, res) => {
-    try {
-        const content = await Content.findOne();
-        if (!content) {
-            return res.status(404).json({ message: 'Content not found' });
-        }
-        res.json(content);
-    } catch (error) {
-        console.error('Get content error:', error);
-        res.status(500).json({ message: 'Server error' });
+  try {
+    const content = await Content.findOne();
+    if (!content) {
+      return res.status(404).json({ message: 'Content not found' });
     }
+    res.json(content);
+  } catch (error) {
+    console.error('Get content error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 app.post('/updateContent', async (req, res) => {
-    try {
-        const { content } = req.body;
-        if (!content) {
-            return res.status(400).json({ message: 'Content is required' });
-        }
-
-        const updatedContent = await Content.findOneAndUpdate(
-            {},
-            { content, lastUpdated: Date.now() },
-            { new: true, upsert: true }
-        );
-        res.json({
-            message: 'Content updated successfully',
-            content: updatedContent
-        });
-    } catch (error) {
-        console.error('Update content error:', error);
-        res.status(500).json({ message: 'Server error' });
+  try {
+    const { content } = req.body;
+    if (!content) {
+      return res.status(400).json({ message: 'Content is required' });
     }
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    if (err instanceof multer.MulterError) {
-        if (err.code === 'LIMIT_FILE_SIZE') {
-            return res.status(400).json({ message: 'File is too large. Maximum size is 5MB.' });
-        }
-        return res.status(400).json({ message: 'File upload error.' });
-    }
-    res.status(500).json({ message: 'Something broke!' });
-});
-
-// Health check route
-app.get('/health', (req, res) => {
-    res.json({ 
-        status: 'OK', 
-        timestamp: new Date().toISOString(),
-        version: '1.0.0'
+    
+    const updatedContent = await Content.findOneAndUpdate(
+      {},
+      { content, lastUpdated: Date.now() },
+      { new: true, upsert: true }
+    );
+    
+    res.json({
+      message: 'Content updated successfully',
+      content: updatedContent
     });
+  } catch (error) {
+    console.error('Update content error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
-// 404 handler
-app.use((req, res) => {
-    res.status(404).json({ message: 'Route not found' });
+
+// Admin Routes
+app.get('/api/admin/pending-requests', authenticate, verifyAdmin, async (req, res) => {
+  try {
+    const pendingUsers = await User.find({ isApproved: false })
+      .select('name email designation');
+    res.json(pendingUsers);
+  } catch (error) {
+    console.error('Get pending requests error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.put('/api/admin/approve/:id', authenticate, verifyAdmin, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    user.isApproved = true;
+    await user.save();
+    res.json({ message: 'User approved successfully' });
+  } catch (error) {
+    console.error('Approve user error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 const PORT = process.env.PORT || 5002;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
-
-module.exports = app;
