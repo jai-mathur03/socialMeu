@@ -1,13 +1,10 @@
 {
-  "name": "projectfinal",
+  "name": "socialouf",
   "version": "1.0.0",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": ""
+    "start": "npm --prefix Backend start",
+    "install": "npm install --prefix Backend && npm install --prefix Frontend"
+  }
 }
 
