@@ -124,6 +124,9 @@ const initializeContent = async () => {
 
 // Routes
 // Auth Routes
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'frontPage.html'));
+});
 app.post('/api/auth/register', upload.single('profilePicture'), async (req, res) => {
   try {
       const { name, designation, email, password, confirmPassword } = req.body;
