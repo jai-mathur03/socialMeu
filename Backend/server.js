@@ -15,7 +15,7 @@ const upload = multer({ storage });
 // Middleware
 app.use(express.json());
 app.use(cors({
-    origin: ['https://social-ouf-k3dt.vercel.app', 'http://localhost:5002'],
+    origin: ['https://socialouf-6.onrender.com', 'http://localhost:5002'],
     credentials: true
 }));
 
