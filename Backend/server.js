@@ -152,20 +152,28 @@ app.post('/api/auth/register', upload.single('profilePicture'), async (req, res)
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create new user with image data
-    const newUser = new User({
+    
+    // Create user first
+    const newUser = await User.create({
       name,
       designation,
       email,
-      password: hashedPassword,
-      profilePicture: {
-        data: req.file ? req.file.buffer : null,  // Store the actual image data
-        contentType: req.file ? req.file.mimetype : null
-      }
+      password: hashedPassword
     });
 
-    await newUser.save();
+    // If there's a profile picture, save it
+    if (req.file) {
+      const profilePicture = await ProfilePicture.create({
+        data: req.file.buffer,
+        contentType: req.file.mimetype,
+        userId: newUser._id
+      });
+
+      // Update user with profile picture reference
+      newUser.profilePictureId = profilePicture._id;
+      await newUser.save();
+    }
+
     res.status(201).json({ message: 'User registered. Awaiting admin approval.' });
   } catch (error) {
     console.error('Registration error:', error);
@@ -250,21 +258,23 @@ app.get('/api/users/me', authenticate, async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const userObj = user.toObject();
-    if (userObj.profilePicture && userObj.profilePicture.data) {
-      userObj.profilePictureUrl = `data:${userObj.profilePicture.contentType};base64,${userObj.profilePicture.data}`;
-    } else {
-      userObj.profilePictureUrl = 'https://via.placeholder.com/150';
-    }
-    delete userObj.profilePicture;
-    delete userObj.password;
+    const userData = user.toObject();
+    delete userData.password;
 
-    res.json({ isAdmin: false, ...userObj });
+    // Add profile picture URL if exists
+    if (user.profilePictureId) {
+      userData.profilePicture = `/api/profilePicture/${user.profilePictureId}`;
+    } else {
+      userData.profilePicture = 'https://via.placeholder.com/150';
+    }
+
+    res.json({ isAdmin: false, ...userData });
   } catch (error) {
     console.error('Get user error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 // Connection Routes
 app.get('/api/members', authenticate, async (req, res) => {
