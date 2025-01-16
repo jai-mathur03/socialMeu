@@ -42,8 +42,8 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   isApproved: { type: Boolean, default: false },
   profilePicture: {
-    data: { type: String, default: '' },  // Base64 string
-    contentType: { type: String, default: '' }
+    data: Buffer,           // Store actual image data as Buffer
+    contentType: String     // Store mime type of image
   },
   connections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   requests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
@@ -145,30 +145,26 @@ app.post('/api/auth/register', upload.single('profilePicture'), async (req, res)
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    let profilePicture = {
-      data: '',
-      contentType: ''
-    };
 
-    if (req.file) {
-      profilePicture = convertToBase64(req.file);
-    }
-
-    await User.create({
+    // Create new user with image data
+    const newUser = new User({
       name,
       designation,
       email,
       password: hashedPassword,
-      profilePicture
+      profilePicture: {
+        data: req.file ? req.file.buffer : null,  // Store the actual image data
+        contentType: req.file ? req.file.mimetype : null
+      }
     });
 
+    await newUser.save();
     res.status(201).json({ message: 'User registered. Awaiting admin approval.' });
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
-
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -188,23 +184,23 @@ app.post('/api/auth/login', async (req, res) => {
     }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    
-    // Convert the profile picture to a data URL for frontend use
-    const userObj = user.toObject();
-    if (userObj.profilePicture && userObj.profilePicture.data) {
-      userObj.profilePictureUrl = `data:${userObj.profilePicture.contentType};base64,${userObj.profilePicture.data}`;
-    } else {
-      userObj.profilePictureUrl = 'https://via.placeholder.com/150';
-    }
-    delete userObj.profilePicture;
-    delete userObj.password;
 
-    res.json({ token, user: userObj });
+    // Convert Buffer to base64 string for sending to client
+    const userObject = user.toObject();
+    if (userObject.profilePicture && userObject.profilePicture.data) {
+      userObject.profilePicture = {
+        data: `data:${userObject.profilePicture.contentType};base64,${userObject.profilePicture.data.toString('base64')}`
+      };
+    }
+    delete userObject.password;
+
+    res.json({ token, user: userObject });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 app.post('/api/auth/admin-login', async (req, res) => {
   try {
@@ -270,16 +266,17 @@ app.get('/api/members', authenticate, async (req, res) => {
     const members = await User.find({
       _id: { $ne: req.user.id },
       isApproved: true
-    }).select('name profilePicture _id');
+    });
 
     const membersWithStatus = members.map(member => {
       const memberObj = member.toObject();
+      
+      // Convert Buffer to base64 string
       if (memberObj.profilePicture && memberObj.profilePicture.data) {
-        memberObj.profilePictureUrl = `data:${memberObj.profilePicture.contentType};base64,${memberObj.profilePicture.data}`;
-      } else {
-        memberObj.profilePictureUrl = 'https://via.placeholder.com/150';
+        memberObj.profilePicture = {
+          data: `data:${memberObj.profilePicture.contentType};base64,${memberObj.profilePicture.data.toString('base64')}`
+        };
       }
-      delete memberObj.profilePicture;
 
       return {
         ...memberObj,
