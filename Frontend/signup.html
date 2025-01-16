@@ -114,6 +114,15 @@
         .b1:hover {
             background-color: #218838;
         }
+        .profile-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 10px auto;
+            display: block;
+            border: 2px solid #ddd;
+        }
     </style>
 </head>
 <body>
@@ -150,8 +159,8 @@
     </div>
 
     <script>
-        const API_BASE_URL = window.location.hostname === 'localhost' 
-            ? 'http://localhost:5002' 
+        const API_BASE_URL = window.location.hostname === 'localhost'
+            ? 'http://localhost:5002'
             : 'https://social-ouf-k3dt.vercel.app';
         
         const profilePicture = document.getElementById('profilePicture');
@@ -159,10 +168,16 @@
         const signupForm = document.getElementById('signupForm');
         const errorMessage = document.getElementById('errorMessage');
 
-        // Preview image before upload
+        // Modified preview function to handle larger images
         profilePicture.addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
+                if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                    alert('Please select an image smaller than 5MB');
+                    event.target.value = '';
+                    return;
+                }
+
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     profilePreview.src = e.target.result;
@@ -171,10 +186,15 @@
             }
         });
 
-        // Handle form submission
         signupForm.addEventListener('submit', async function(event) {
             event.preventDefault();
             
+            // Show loading state
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.textContent;
+            submitButton.textContent = 'Signing up...';
+            submitButton.disabled = true;
+
             const formData = new FormData();
             formData.append('name', document.getElementById('name').value);
             formData.append('designation', document.getElementById('designation').value);
@@ -182,9 +202,9 @@
             formData.append('password', document.getElementById('password').value);
             formData.append('confirmPassword', document.getElementById('confirmPassword').value);
             
-            const fileInput = document.getElementById('profilePicture');
-            if (fileInput.files[0]) {
-                formData.append('profilePicture', fileInput.files[0]);
+            const profilePictureFile = document.getElementById('profilePicture').files[0];
+            if (profilePictureFile) {
+                formData.append('profilePicture', profilePictureFile);
             }
 
             try {
@@ -192,8 +212,9 @@
                     method: 'POST',
                     body: formData
                 });
-                
+
                 const data = await response.json();
+                
                 if (response.ok) {
                     alert(data.message);
                     window.location.href = "thankYou.html";
@@ -203,6 +224,10 @@
             } catch (error) {
                 console.error('Error:', error);
                 errorMessage.textContent = "Failed to connect to the server.";
+            } finally {
+                // Reset button state
+                submitButton.textContent = originalButtonText;
+                submitButton.disabled = false;
             }
         });
     </script>
