@@ -34,16 +34,19 @@ mongoose.connect(MONGODB_URI)
 })
 .catch(err => console.error('MongoDB Connection Failed:', err));
 
-// GridFS Storage Setup
+// GridFS Storage Configuration
 const storage = new GridFsStorage({
     url: MONGODB_URI,
-    options: { useNewUrlParser: true, useUnifiedTopology: true },
     file: (req, file) => {
         return new Promise((resolve, reject) => {
             const filename = `${Date.now()}-${uuidv4()}-${file.originalname}`;
             const fileInfo = {
                 filename: filename,
-                bucketName: 'uploads'
+                bucketName: 'uploads',
+                metadata: {
+                    userId: req.user ? req.user.id : null,
+                    contentType: file.mimetype
+                }
             };
             resolve(fileInfo);
         });
@@ -161,22 +164,19 @@ const initializeContent = async () => {
 app.get('/api/image/:filename', async (req, res) => {
     try {
         const file = await gfs.files.findOne({ filename: req.params.filename });
-        if (!file || file.length === 0) {
+        if (!file) {
             return res.status(404).json({ message: 'File not found' });
         }
 
-        // Set proper content type
-        res.set('Content-Type', file.contentType);
-
-        // Create read stream
-        const readstream = gfs.createReadStream({ filename: file.filename });
-        readstream.on('error', function(err) {
-            console.log('An error occurred!', err);
-            res.status(500).json({ message: "Error reading file" });
+        const readStream = gfs.createReadStream(file.filename);
+        res.set('Content-Type', file.metadata.contentType);
+        
+        readStream.on('error', (error) => {
+            console.error('Error streaming file:', error);
+            res.status(500).json({ message: 'Error streaming file' });
         });
 
-        // Pipe the file to the response
-        readstream.pipe(res);
+        readStream.pipe(res);
     } catch (error) {
         console.error('Error serving image:', error);
         res.status(500).json({ message: 'Error serving image' });
@@ -185,6 +185,9 @@ app.get('/api/image/:filename', async (req, res) => {
 
 // Auth Routes
 app.post('/api/auth/register', upload.single('profilePicture'), async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
         const { name, designation, email, password, confirmPassword } = req.body;
         
@@ -204,22 +207,25 @@ app.post('/api/auth/register', upload.single('profilePicture'), async (req, res)
             profilePictureUrl = `/api/image/${req.file.filename}`;
         }
 
-        const newUser = await User.create({
+        const newUser = await User.create([{
             name,
             designation,
             email,
             password: hashedPassword,
             profilePicture: profilePictureUrl
-        });
+        }], { session });
 
+        await session.commitTransaction();
+        
         res.status(201).json({ 
             message: 'User registered. Awaiting admin approval.',
             user: {
-                ...newUser.toObject(),
+                ...newUser[0].toObject(),
                 password: undefined
             }
         });
     } catch (error) {
+        await session.abortTransaction();
         console.error('Registration error:', error);
         if (error.code === 'LIMIT_FILE_SIZE') {
             return res.status(400).json({ message: 'File size too large. Maximum size is 5MB.' });
@@ -228,6 +234,8 @@ app.post('/api/auth/register', upload.single('profilePicture'), async (req, res)
             return res.status(400).json({ message: error.message });
         }
         res.status(500).json({ message: 'Server error during registration' });
+    } finally {
+        session.endSession();
     }
 });
 
@@ -561,6 +569,21 @@ app.delete('/api/image/:filename', authenticate, async (req, res) => {
         console.error('Error deleting file:', error);
         res.status(500).json({ message: 'Error deleting file' });
     }
+});
+
+// Additional error handling for file operations
+app.use((error, req, res, next) => {
+    if (error instanceof multer.MulterError) {
+        if (error.code === 'LIMIT_FILE_SIZE') {
+            return res.status(400).json({
+                message: 'File size too large. Maximum size is 5MB.'
+            });
+        }
+        return res.status(400).json({
+            message: 'File upload error: ' + error.message
+        });
+    }
+    next(error);
 });
 
 // Generic error handler
