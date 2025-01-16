@@ -187,48 +187,51 @@
         });
 
         signupForm.addEventListener('submit', async function(event) {
-            event.preventDefault();
-            
-            // Show loading state
-            const submitButton = this.querySelector('button[type="submit"]');
-            const originalButtonText = submitButton.textContent;
-            submitButton.textContent = 'Signing up...';
-            submitButton.disabled = true;
-
-            const formData = new FormData();
-            formData.append('name', document.getElementById('name').value);
-            formData.append('designation', document.getElementById('designation').value);
-            formData.append('email', document.getElementById('email').value);
-            formData.append('password', document.getElementById('password').value);
-            formData.append('confirmPassword', document.getElementById('confirmPassword').value);
-            
-            const profilePictureFile = document.getElementById('profilePicture').files[0];
-            if (profilePictureFile) {
-                formData.append('profilePicture', profilePictureFile);
+          event.preventDefault();
+          
+          // Show loading state
+          const submitButton = this.querySelector('button[type="submit"]');
+          const originalButtonText = submitButton.textContent;
+          submitButton.textContent = 'Signing up...';
+          submitButton.disabled = true;
+        
+          const formData = new FormData();
+          
+          // Make sure all form fields are properly added to FormData
+          formData.append('name', document.getElementById('name').value.trim());
+          formData.append('designation', document.getElementById('designation').value.trim());
+          formData.append('email', document.getElementById('email').value.trim());
+          formData.append('password', document.getElementById('password').value);
+          formData.append('confirmPassword', document.getElementById('confirmPassword').value);
+        
+          const profilePictureFile = document.getElementById('profilePicture').files[0];
+          if (profilePictureFile) {
+            formData.append('profilePicture', profilePictureFile);
+          }
+        
+          try {
+            const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+              method: 'POST',
+              body: formData,
+              // Don't set Content-Type header - FormData will set it automatically with boundary
+            });
+        
+            if (!response.ok) {
+              const data = await response.json();
+              throw new Error(data.message || 'Registration failed');
             }
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-                
-                if (response.ok) {
-                    alert(data.message);
-                    window.location.href = "thankYou.html";
-                } else {
-                    errorMessage.textContent = data.message || "An error occurred during signup.";
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                errorMessage.textContent = "Failed to connect to the server.";
-            } finally {
-                // Reset button state
-                submitButton.textContent = originalButtonText;
-                submitButton.disabled = false;
-            }
+        
+            const data = await response.json();
+            alert(data.message);
+            window.location.href = "thankYou.html";
+          } catch (error) {
+            console.error('Error:', error);
+            errorMessage.textContent = error.message || "Failed to connect to the server.";
+          } finally {
+            // Reset button state
+            submitButton.textContent = originalButtonText;
+            submitButton.disabled = false;
+          }
         });
     </script>
 </body>
