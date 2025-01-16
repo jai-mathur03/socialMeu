@@ -20,7 +20,7 @@ app.use(cors({
 }));
 
 
-app.use(express.static(path.join(__dirname, '../frontend')));
+app.use(express.static(path.join(__dirname, '../Frontend')));
 // MongoDB Connection
 mongoose.connect("mongodb+srv://jaiadityamathur2022:nA7yvXLpXVcfnCye@cluster0.eto5t.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
     .then(() => {
@@ -125,7 +125,7 @@ const initializeContent = async () => {
 // Routes
 // Auth Routes
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'frontPage.html'));
+    res.sendFile(path.join(__dirname, '../Frontend', 'frontPage.html'));
 });
 app.post('/api/auth/register', upload.single('profilePicture'), async (req, res) => {
   try {
