@@ -36,10 +36,12 @@ mongoose.connect("mongodb+srv://jaiadityamathur2022:nA7yvXLpXVcfnCye@cluster0.et
 
 // Schemas
 const profilePictureSchema = new mongoose.Schema({
-    data: Buffer,
-    contentType: String,
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    uploadDate: { type: Date, default: Date.now }
+  data: Buffer,
+  contentType: String,
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  uploadDate: { type: Date, default: Date.now }
+}, {
+  collection: 'pfps' // This explicitly sets the collection name to 'pfps'
 });
 
 const userSchema = new mongoose.Schema({
@@ -142,46 +144,56 @@ app.get('/api/profilePicture/:id', async (req, res) => {
 
 // Auth Routes
 app.post('/api/auth/register', upload.single('profilePicture'), async (req, res) => {
-    try {
-        const { name, designation, email, password, confirmPassword } = req.body;
-        
-        if (password !== confirmPassword) {
-            return res.status(400).json({ message: 'Passwords do not match' });
-        }
+  try {
+    const { name, designation, email, password, confirmPassword } = req.body;
+    
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: 'Passwords do not match' });
+    }
 
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
-        }
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        
-        // Create user first
-        const newUser = await User.create({
-            name,
-            designation,
-            email,
-            password: hashedPassword
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Create the user first
+    const newUser = new User({
+      name,
+      designation,
+      email,
+      password: hashedPassword
+    });
+
+    // If there's a profile picture, create and save it
+    if (req.file) {
+      try {
+        const profilePicture = new ProfilePicture({
+          data: req.file.buffer,
+          contentType: req.file.mimetype,
+          userId: newUser._id
         });
 
-        // If there's a profile picture, save it
-        if (req.file) {
-            const profilePicture = await ProfilePicture.create({
-                data: req.file.buffer,
-                contentType: req.file.mimetype,
-                userId: newUser._id
-            });
-
-            // Update user with profile picture reference
-            newUser.profilePictureId = profilePicture._id;
-            await newUser.save();
-        }
-
-        res.status(201).json({ message: 'User registered. Awaiting admin approval.' });
-    } catch (error) {
-        console.error('Registration error:', error);
-        res.status(500).json({ message: 'Server error' });
+        // Save the profile picture
+        const savedProfilePicture = await profilePicture.save();
+        
+        // Update user with profile picture reference
+        newUser.profilePictureId = savedProfilePicture._id;
+      } catch (error) {
+        console.error('Profile picture save error:', error);
+        // Continue with user creation even if profile picture fails
+      }
     }
+
+    // Save the user
+    await newUser.save();
+
+    res.status(201).json({ message: 'User registered. Awaiting admin approval.' });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ message: 'Server error during registration' });
+  }
 });
 
 app.post('/api/auth/login', async (req, res) => {
