@@ -10,25 +10,20 @@ require('dotenv').config();
 
 const app = express();
 
-// Multer configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => {
-    const uniqueFilename = `${uuidv4()}-${file.originalname}`;
-    cb(null, uniqueFilename);
-  }
+// Multer configuration for memory storage
+const storage = multer.memoryStorage();
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 } // Limit file size to 5MB
 });
 
-const upload = multer({ storage });
-
 // Middleware
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(cors({
   origin: ['https://social-ouf-k3dt.vercel.app', 'http://localhost:5002'],
   credentials: true
 }));
 app.use(express.static(path.join(__dirname, '../frontend')));
-app.use('/uploads', express.static('uploads'));
 
 // MongoDB Connection
 mongoose.connect("mongodb+srv://jaiadityamathur2022:nA7yvXLpXVcfnCye@cluster0.eto5t.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
@@ -39,7 +34,6 @@ mongoose.connect("mongodb+srv://jaiadityamathur2022:nA7yvXLpXVcfnCye@cluster0.et
   })
   .catch(err => console.error('MongoDB Connection Failed:', err));
 
-
 // Schemas
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -47,7 +41,10 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   isApproved: { type: Boolean, default: false },
-  profilePicture: { type: String, default: 'https://via.placeholder.com/150' },
+  profilePicture: {
+    data: { type: String, default: '' },  // Base64 string
+    contentType: { type: String, default: '' }
+  },
   connections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   requests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
@@ -66,6 +63,14 @@ const contentSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 const Admin = mongoose.model('Admin', adminSchema);
 const Content = mongoose.model('Content', contentSchema);
+
+// Helper function to convert file to Base64
+const convertToBase64 = (file) => {
+  return {
+    data: file.buffer.toString('base64'),
+    contentType: file.mimetype
+  };
+};
 
 // Authentication Middleware
 const authenticate = (req, res, next) => {
@@ -98,7 +103,6 @@ const initializeAdmin = async () => {
       { email: "Socialite@gmail.com", password: "adminSocialite123" },
       { email: "Hitachi@gmail.com", password: "adminHitachi123" }
     ];
-    
     for (const admin of admins) {
       const existingAdmin = await Admin.findOne({ email: admin.email });
       if (!existingAdmin) {
@@ -130,7 +134,7 @@ const initializeContent = async () => {
 app.post('/api/auth/register', upload.single('profilePicture'), async (req, res) => {
   try {
     const { name, designation, email, password, confirmPassword } = req.body;
-
+    
     if (password !== confirmPassword) {
       return res.status(400).json({ message: 'Passwords do not match' });
     }
@@ -141,14 +145,21 @@ app.post('/api/auth/register', upload.single('profilePicture'), async (req, res)
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const profilePicturePath = req.file?.path || 'https://via.placeholder.com/150';
+    let profilePicture = {
+      data: '',
+      contentType: ''
+    };
+
+    if (req.file) {
+      profilePicture = convertToBase64(req.file);
+    }
 
     await User.create({
       name,
       designation,
       email,
       password: hashedPassword,
-      profilePicture: profilePicturePath
+      profilePicture
     });
 
     res.status(201).json({ message: 'User registered. Awaiting admin approval.' });
@@ -177,7 +188,18 @@ app.post('/api/auth/login', async (req, res) => {
     }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    res.json({ token, user: { ...user.toObject(), password: undefined } });
+    
+    // Convert the profile picture to a data URL for frontend use
+    const userObj = user.toObject();
+    if (userObj.profilePicture && userObj.profilePicture.data) {
+      userObj.profilePictureUrl = `data:${userObj.profilePicture.contentType};base64,${userObj.profilePicture.data}`;
+    } else {
+      userObj.profilePictureUrl = 'https://via.placeholder.com/150';
+    }
+    delete userObj.profilePicture;
+    delete userObj.password;
+
+    res.json({ token, user: userObj });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Server error' });
@@ -225,7 +247,16 @@ app.get('/api/users/me', authenticate, async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json({ isAdmin: false, ...user.toObject(), password: undefined });
+    const userObj = user.toObject();
+    if (userObj.profilePicture && userObj.profilePicture.data) {
+      userObj.profilePictureUrl = `data:${userObj.profilePicture.contentType};base64,${userObj.profilePicture.data}`;
+    } else {
+      userObj.profilePictureUrl = 'https://via.placeholder.com/150';
+    }
+    delete userObj.profilePicture;
+    delete userObj.password;
+
+    res.json({ isAdmin: false, ...userObj });
   } catch (error) {
     console.error('Get user error:', error);
     res.status(500).json({ message: 'Server error' });
@@ -241,12 +272,22 @@ app.get('/api/members', authenticate, async (req, res) => {
       isApproved: true
     }).select('name profilePicture _id');
 
-    const membersWithStatus = members.map(member => ({
-      ...member.toObject(),
-      isConnected: (currentUser.connections || []).includes(member._id),
-      requestSent: (member.requests || []).includes(currentUser._id),
-      requestReceived: (currentUser.requests || []).includes(member._id)
-    }));
+    const membersWithStatus = members.map(member => {
+      const memberObj = member.toObject();
+      if (memberObj.profilePicture && memberObj.profilePicture.data) {
+        memberObj.profilePictureUrl = `data:${memberObj.profilePicture.contentType};base64,${memberObj.profilePicture.data}`;
+      } else {
+        memberObj.profilePictureUrl = 'https://via.placeholder.com/150';
+      }
+      delete memberObj.profilePicture;
+
+      return {
+        ...memberObj,
+        isConnected: (currentUser.connections || []).includes(member._id),
+        requestSent: (member.requests || []).includes(currentUser._id),
+        requestReceived: (currentUser.requests || []).includes(member._id)
+      };
+    });
 
     res.json(membersWithStatus);
   } catch (error) {
@@ -254,11 +295,24 @@ app.get('/api/members', authenticate, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 app.get('/api/connections', authenticate, async (req, res) => {
   try {
     const user = await User.findById(req.user.id)
       .populate('connections', 'name designation email profilePicture');
-    res.json(user.connections);
+
+    const connections = user.connections.map(connection => {
+      const connectionObj = connection.toObject();
+      if (connectionObj.profilePicture && connectionObj.profilePicture.data) {
+        connectionObj.profilePictureUrl = `data:${connectionObj.profilePicture.contentType};base64,${connectionObj.profilePicture.data}`;
+      } else {
+        connectionObj.profilePictureUrl = 'https://via.placeholder.com/150';
+      }
+      delete connectionObj.profilePicture;
+      return connectionObj;
+    });
+
+    res.json(connections);
   } catch (error) {
     console.error('Get connections error:', error);
     res.status(500).json({ message: 'Server error' });
@@ -269,7 +323,19 @@ app.get('/api/connections/requests', authenticate, async (req, res) => {
   try {
     const user = await User.findById(req.user.id)
       .populate('requests', 'name profilePicture');
-    res.json(user.requests);
+
+    const requests = user.requests.map(request => {
+      const requestObj = request.toObject();
+      if (requestObj.profilePicture && requestObj.profilePicture.data) {
+        requestObj.profilePictureUrl = `data:${requestObj.profilePicture.contentType};base64,${requestObj.profilePicture.data}`;
+      } else {
+        requestObj.profilePictureUrl = 'https://via.placeholder.com/150';
+      }
+      delete requestObj.profilePicture;
+      return requestObj;
+    });
+
+    res.json(requests);
   } catch (error) {
     console.error('Get requests error:', error);
     res.status(500).json({ message: 'Server error' });
@@ -280,17 +346,18 @@ app.post('/api/connections/request/:id', authenticate, async (req, res) => {
   try {
     const toUser = await User.findById(req.params.id);
     const fromUser = await User.findById(req.user.id);
-    
+
     if (!toUser || !fromUser) {
       return res.status(404).json({ message: 'User not found' });
     }
-    
+
     if (toUser.requests.includes(fromUser._id)) {
       return res.status(400).json({ message: 'Request already sent' });
     }
-    
+
     toUser.requests.push(fromUser._id);
     await toUser.save();
+
     res.json({ message: 'Connection request sent' });
   } catch (error) {
     console.error('Send request error:', error);
@@ -303,25 +370,66 @@ app.post('/api/connections/respond/:id', authenticate, async (req, res) => {
     const { action } = req.body;
     const currentUser = await User.findById(req.user.id);
     const requestUser = await User.findById(req.params.id);
-    
+
     if (!currentUser || !requestUser) {
       return res.status(404).json({ message: 'User not found' });
     }
-    
+
     currentUser.requests = currentUser.requests.filter(
       id => id.toString() !== req.params.id
     );
-    
+
     if (action === 'accept') {
       currentUser.connections.push(req.params.id);
       requestUser.connections.push(req.user.id);
       await requestUser.save();
     }
-    
+
     await currentUser.save();
     res.json({ message: `Request ${action}ed successfully` });
   } catch (error) {
     console.error('Respond to request error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Admin Routes
+app.get('/api/admin/pending-requests', authenticate, verifyAdmin, async (req, res) => {
+  try {
+    const pendingUsers = await User.find({ isApproved: false })
+      .select('name email designation profilePicture');
+
+    const pendingUsersWithPictures = pendingUsers.map(user => {
+      const userObj = user.toObject();
+      if (userObj.profilePicture && userObj.profilePicture.data) {
+        const userObj = user.toObject();
+      if (userObj.profilePicture && userObj.profilePicture.data) {
+        userObj.profilePictureUrl = `data:${userObj.profilePicture.contentType};base64,${userObj.profilePicture.data}`;
+      } else {
+        userObj.profilePictureUrl = 'https://via.placeholder.com/150';
+      }
+      delete userObj.profilePicture;
+      return userObj;
+    });
+
+    res.json(pendingUsersWithPictures);
+  } catch (error) {
+    console.error('Get pending requests error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.put('/api/admin/approve/:id', authenticate, verifyAdmin, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    user.isApproved = true;
+    await user.save();
+    res.json({ message: 'User approved successfully' });
+  } catch (error) {
+    console.error('Approve user error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -358,47 +466,18 @@ app.post('/updateContent', async (req, res) => {
     if (!content) {
       return res.status(400).json({ message: 'Content is required' });
     }
-    
+
     const updatedContent = await Content.findOneAndUpdate(
       {},
       { content, lastUpdated: Date.now() },
       { new: true, upsert: true }
     );
-    
     res.json({
       message: 'Content updated successfully',
       content: updatedContent
     });
   } catch (error) {
     console.error('Update content error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-
-// Admin Routes
-app.get('/api/admin/pending-requests', authenticate, verifyAdmin, async (req, res) => {
-  try {
-    const pendingUsers = await User.find({ isApproved: false })
-      .select('name email designation');
-    res.json(pendingUsers);
-  } catch (error) {
-    console.error('Get pending requests error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-app.put('/api/admin/approve/:id', authenticate, verifyAdmin, async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    user.isApproved = true;
-    await user.save();
-    res.json({ message: 'User approved successfully' });
-  } catch (error) {
-    console.error('Approve user error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
