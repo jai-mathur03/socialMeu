@@ -8,235 +8,198 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            font-family: Inter, sans-serif;
+            font-family: 'Inter', sans-serif;
             margin: 0;
             padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             min-height: 100vh;
             background-color: #f4f4f4;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .container {
             display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
             background: white;
-            border-radius: 20px;
+            border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             overflow: hidden;
-            position: relative;
-            width: 900px;
-            height: 600px;
         }
 
         .gradientSlide {
-            background: linear-gradient(135deg, #0061f2 0%, #00a7e1 100%);
+            background: linear-gradient(135deg, #007bff, #28a745);
             color: white;
-            padding: 40px;
+            padding: 20px;
             text-align: center;
-            width: 300px;
+            width: 40%;
             display: flex;
             flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
         }
 
         .gradientSlide img {
-            width: 120px;
+            height: 80px;
             margin-bottom: 20px;
         }
 
-        .membersText, .adminText {
-            margin: 10px 0;
-            font-size: 18px;
-            opacity: 0.9;
+        .gradientSlide h2 {
+            font-family: 'Crutsen', sans-serif;
+            margin: 0;
         }
 
         .formBox {
-            flex: 1;
             padding: 40px;
-            background: white;
-            overflow-y: auto;
+            width: 60%;
         }
 
-        h2 {
-            color: #333;
-            margin-bottom: 30px;
-            text-align: center;
+        .formBox h2 {
+            margin-bottom: 20px;
         }
 
         .blueContainer {
-            background: #e8f0fe;
-            color: #0061f2;
-            padding: 10px 20px;
-            border-radius: 8px;
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
             text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .profile-upload {
-            margin: 20px 0;
-            text-align: center;
-        }
-
-        .profile-preview {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin: 10px auto;
-            display: block;
-            border: 2px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 20px;
         }
 
         .inputGroup {
-            position: relative;
+            display: flex;
+            align-items: center;
             margin-bottom: 20px;
         }
 
         .inputGroup i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #666;
+            margin-right: 10px;
+            color: #007bff;
         }
 
         .inputGroup input {
             width: 100%;
-            padding: 12px 40px;
+            padding: 10px;
             border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-            box-sizing: border-box;
+            border-radius: 4px;
         }
 
-        .inputGroup input:focus {
-            outline: none;
-            border-color: #0061f2;
+        .rememberMe {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
         }
 
-        button {
-            background: #0061f2;
+        .rememberMe input {
+            margin-right: 10px;
+        }
+
+        .btn {
+            background-color: #007bff;
             color: white;
-            padding: 12px;
+            padding: 10px 20px;
             border: none;
-            border-radius: 8px;
-            width: 100%;
-            font-size: 16px;
+            border-radius: 4px;
             cursor: pointer;
-            margin: 10px 0;
-            transition: transform 0.2s;
+            width: 100%;
+            margin-bottom: 20px;
         }
 
-        button:hover {
-            transform: translateY(-2px);
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .forgotPassword {
+            display: block;
+            text-align: center;
+            color: #007bff;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+
+        .socialLogin {
+            text-align: center;
+            margin-bottom: 20px;
         }
 
         .btnSocial {
-            background: white;
-            border: 1px solid #ddd;
-            color: #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 20px;
         }
 
-        .btnSocial i {
-            font-size: 18px;
-        }
-
-        .error {
-            color: #dc3545;
-            margin: 5px 0;
-            font-size: 14px;
-            text-align: center;
+        .btnSocial:hover {
+            background-color: #218838;
         }
 
         .switchLink {
             text-align: center;
             margin-top: 20px;
-            color: #666;
         }
 
         .switchLink a {
-            color: #0061f2;
+            color: #007bff;
             text-decoration: none;
-            font-weight: 600;
         }
 
-        #file-upload-btn {
-            background: #e8f0fe;
-            color: #0061f2;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            display: inline-block;
-            margin-top: 10px;
+        .error {
+            color: red;
+            margin: 5px 0;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="gradientSlide">
-            <img src="hitachiLogo.png" alt="Socialite">
-            <h2 style="color: white; margin-top: 20px;">Socialite</h2>
+            <img src="icc.png" alt="logo">
+            <h2>Socialite</h2>
             <span class="membersText">Members</span>
             <span class="adminText">Admin</span>
         </div>
         <div class="formBox">
             <h2>Sign Up</h2>
-            <div class="blueContainer">Create your account</div>
-            
-            <form class="signup-form" id="signupForm" enctype="multipart/form-data">
-                <div class="profile-upload">
-                    <img id="profilePreview" src="https://via.placeholder.com/150" alt="Profile Preview" class="profile-preview">
-                    <label id="file-upload-btn">
-                        <i class="fas fa-camera"></i> Upload Photo
-                        <input type="file" id="profilePicture" accept="image/*" required style="display: none;">
-                    </label>
-                </div>
-
+            <div class="blueContainer">As a member</div>
+            <form id="signupForm" enctype="multipart/form-data">
                 <div class="inputGroup">
                     <i class="fas fa-user"></i>
                     <input type="text" id="name" placeholder="Name" required>
                 </div>
-
                 <div class="inputGroup">
                     <i class="fas fa-briefcase"></i>
                     <input type="text" id="designation" placeholder="Designation" required>
                 </div>
-
                 <div class="inputGroup">
                     <i class="fas fa-envelope"></i>
                     <input type="email" id="email" placeholder="Email" required>
                 </div>
-
                 <div class="inputGroup">
                     <i class="fas fa-lock"></i>
                     <input type="password" id="password" placeholder="Password" required>
                 </div>
-
                 <div class="inputGroup">
                     <i class="fas fa-lock"></i>
                     <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
                 </div>
-
+                <div class="profile-upload">
+                    <img id="profilePreview" src="https://via.placeholder.com/150" alt="Profile Preview" class="profile-preview">
+                    <input type="file" id="profilePicture" accept="image/*" required>
+                </div>
                 <p class="error" id="errorMessage"></p>
-                <button type="submit">Sign Up</button>
-
-                <div class="socialLogin">
-                    <p>Or sign up with:</p>
-                    <button type="button" class="btnSocial">
-                        <i class="fab fa-google"></i> Google
-                    </button>
-                </div>
-
-                <div class="switchLink">
-                    Already a member? <a href="login.html">Sign In</a>
-                </div>
+                <button type="submit" class="btn">Sign Up</button>
             </form>
+            <div class="switchLink">
+                Already a member? <a href="login.html">Sign In</a>
+            </div>
         </div>
     </div>
 
@@ -250,11 +213,10 @@
         const signupForm = document.getElementById('signupForm');
         const errorMessage = document.getElementById('errorMessage');
 
-        // Profile picture preview functionality
         profilePicture.addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
-                if (file.size > 5 * 1024 * 1024) {
+                if (file.size > 5 * 1024 * 1024) { // 5MB limit
                     errorMessage.textContent = "File size must be less than 5MB";
                     profilePicture.value = '';
                     return;
@@ -267,7 +229,6 @@
             }
         });
 
-        // Form submission handling
         signupForm.addEventListener('submit', async function(event) {
             event.preventDefault();
             errorMessage.textContent = '';
@@ -289,6 +250,7 @@
                     method: 'POST',
                     body: formData
                 });
+
                 const data = await response.json();
                 if (response.ok) {
                     alert(data.message);
