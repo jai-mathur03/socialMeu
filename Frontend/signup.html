@@ -6,170 +6,24 @@
     <title>Socialite</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #f4f4f4;
-        }
-
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            max-width: 800px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .gradientSlide {
-            background: linear-gradient(135deg, #007bff, #28a745);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            width: 40%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .gradientSlide img {
-            height: 80px;
-            margin-bottom: 20px;
-        }
-
-        .gradientSlide h2 {
-            font-family: 'Crutsen', sans-serif;
-            margin: 0;
-        }
-
-        .formBox {
-            padding: 40px;
-            width: 60%;
-        }
-
-        .formBox h2 {
-            margin-bottom: 20px;
-        }
-
-        .blueContainer {
-            background-color: #007bff;
-            color: white;
-            padding: 10px;
-            text-align: center;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-
-        .inputGroup {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .inputGroup i {
-            margin-right: 10px;
-            color: #007bff;
-        }
-
-        .inputGroup input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        .rememberMe {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .rememberMe input {
-            margin-right: 10px;
-        }
-
-        .btn {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        .btn:hover {
-            background-color: #0056b3;
-        }
-
-        .forgotPassword {
-            display: block;
-            text-align: center;
-            color: #007bff;
-            text-decoration: none;
-            margin-bottom: 20px;
-        }
-
-        .socialLogin {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .btnSocial {
-            background-color: #28a745;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        .btnSocial:hover {
-            background-color: #218838;
-        }
-
-        .switchLink {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .switchLink a {
-            color: #007bff;
-            text-decoration: none;
-        }
-
-        .error {
-            color: red;
-            margin: 5px 0;
-            font-size: 14px;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <div class="gradientSlide">
-            <img src="icc.png" alt="logo">
-            <h2>Socialite</h2>
+        <div class="gradientSlide" id="gradientSlide">
+            <img src="ice.png" alt="Logo">
+            <div><h2 style="font-family: Crutsen">Socialite</h2></div>
             <span class="membersText">Members</span>
             <span class="adminText">Admin</span>
         </div>
-        <div class="formBox">
+
+        <div class="formBox" id="signupFormBox">
             <h2>Sign Up</h2>
-            <div class="blueContainer">As a member</div>
             <form id="signupForm" enctype="multipart/form-data">
+                <div class="profile-upload">
+                    <img id="profilePreview" src="https://via.placeholder.com/150" alt="Profile Preview" class="profile-preview">
+                    <input type="file" id="profilePicture" accept="image/*" required>
+                </div>
                 <div class="inputGroup">
                     <i class="fas fa-user"></i>
                     <input type="text" id="name" placeholder="Name" required>
@@ -190,77 +44,68 @@
                     <i class="fas fa-lock"></i>
                     <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
                 </div>
-                <div class="profile-upload">
-                    <img id="profilePreview" src="https://via.placeholder.com/150" alt="Profile Preview" class="profile-preview">
-                    <input type="file" id="profilePicture" accept="image/*" required>
-                </div>
                 <p class="error" id="errorMessage"></p>
-                <button type="submit" class="btn">Sign Up</button>
+                <button type="submit">Sign Up</button>
             </form>
-            <div class="switchLink">
-                Already a member? <a href="login.html">Sign In</a>
+            <h2 style="margin: 0%; margin-top:15px;">OR</h2>
+            <div>
+                <h4>Already a member?</h4>
+                <a href="login.html"><button class="b1">Sign In</button></a>
             </div>
         </div>
     </div>
-
+    
     <script>
-        const API_BASE_URL = window.location.hostname === 'localhost'
-            ? 'http://localhost:5002'
-            : 'https://socialouf-6.onrender.com';
-
-        const profilePicture = document.getElementById('profilePicture');
-        const profilePreview = document.getElementById('profilePreview');
-        const signupForm = document.getElementById('signupForm');
-        const errorMessage = document.getElementById('errorMessage');
-
-        profilePicture.addEventListener('change', function(event) {
+        const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:5002' : 'https://socialouf-6.onrender.com';
+        
+        document.getElementById('profilePicture').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
-                if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                    errorMessage.textContent = "File size must be less than 5MB";
-                    profilePicture.value = '';
+                if (file.size > 5 * 1024 * 1024) {
+                    document.getElementById('errorMessage').textContent = "File size must be less than 5MB";
+                    event.target.value = '';
                     return;
                 }
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    profilePreview.src = e.target.result;
+                    document.getElementById('profilePreview').src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        signupForm.addEventListener('submit', async function(event) {
+        document.getElementById('signupForm').addEventListener('submit', async function(event) {
             event.preventDefault();
-            errorMessage.textContent = '';
-
+            document.getElementById('errorMessage').textContent = '';
+            
             const formData = new FormData();
             formData.append('name', document.getElementById('name').value);
             formData.append('designation', document.getElementById('designation').value);
             formData.append('email', document.getElementById('email').value);
             formData.append('password', document.getElementById('password').value);
             formData.append('confirmPassword', document.getElementById('confirmPassword').value);
-
+            
             const profilePicFile = document.getElementById('profilePicture').files[0];
             if (profilePicFile) {
                 formData.append('profilePicture', profilePicFile);
             }
-
+            
             try {
                 const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
                     method: 'POST',
                     body: formData
                 });
-
+                
                 const data = await response.json();
                 if (response.ok) {
                     alert(data.message);
                     window.location.href = "thankYou.html";
                 } else {
-                    errorMessage.textContent = data.message || "An error occurred during signup.";
+                    document.getElementById('errorMessage').textContent = data.message || "An error occurred during signup.";
                 }
             } catch (error) {
                 console.error('Error:', error);
-                errorMessage.textContent = "Failed to connect to the server.";
+                document.getElementById('errorMessage').textContent = "Failed to connect to the server.";
             }
         });
     </script>
