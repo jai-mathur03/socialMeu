@@ -3,22 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Socialite</title>
+    <title>Socialite - Sign Up</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+            min-height: 600px;
+        }
+
+        .gradientSlide {
+            background: linear-gradient(135deg, #0061ff, #60efff);
+            width: 50%;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+        }
+
+        .gradientSlide img {
+            width: 120px;
+            margin-bottom: 20px;
+        }
+
+        .formBox {
+            width: 50%;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h2 {
+            margin-bottom: 30px;
+            color: #333;
+            text-align: center;
+        }
+
+        .profile-upload {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .profile-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 10px auto;
+            display: block;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-preview:hover {
+            transform: scale(1.05);
+        }
+
+        .inputGroup {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .inputGroup i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="file"] {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        input[type="file"] {
+            padding: 12px 15px;
+        }
+
+        input:focus {
+            border-color: #0061ff;
+            outline: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #0061ff, #60efff);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            margin: 20px 0;
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .error {
+            color: #ff4444;
+            margin: 5px 0;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .switchLink {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .switchLink a {
+            color: #0061ff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .switchLink a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <div class="gradientSlide" id="gradientSlide">
-            <img src="ice.png" alt="Logo">
-            <div><h2 style="font-family: Crutsen">Socialite</h2></div>
-            <span class="membersText">Members</span>
-            <span class="adminText">Admin</span>
+        <div class="gradientSlide">
+            <img src="ice.png" alt="Socialite">
+            <h2 style="color: white; font-family: 'Inter'">Welcome to Socialite</h2>
+            <p>Join our community and connect with amazing people!</p>
         </div>
-
-        <div class="formBox" id="signupFormBox">
-            <h2>Sign Up</h2>
+        <div class="formBox">
+            <h2>Create Account</h2>
             <form id="signupForm" enctype="multipart/form-data">
                 <div class="profile-upload">
                     <img id="profilePreview" src="https://via.placeholder.com/150" alt="Profile Preview" class="profile-preview">
@@ -45,39 +193,44 @@
                     <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
                 </div>
                 <p class="error" id="errorMessage"></p>
-                <button type="submit">Sign Up</button>
+                <button type="submit" class="btn">Sign Up</button>
             </form>
-            <h2 style="margin: 0%; margin-top:15px;">OR</h2>
-            <div>
-                <h4>Already a member?</h4>
-                <a href="login.html"><button class="b1">Sign In</button></a>
+            <div class="switchLink">
+                Already have an account? <a href="login.html">Sign In</a>
             </div>
         </div>
     </div>
-    
+
     <script>
-        const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:5002' : 'https://socialouf-6.onrender.com';
+        const API_BASE_URL = window.location.hostname === 'localhost'
+            ? 'http://localhost:5002'
+            : 'https://socialouf-6.onrender.com';
         
-        document.getElementById('profilePicture').addEventListener('change', function(event) {
+        const profilePicture = document.getElementById('profilePicture');
+        const profilePreview = document.getElementById('profilePreview');
+        const signupForm = document.getElementById('signupForm');
+        const errorMessage = document.getElementById('errorMessage');
+
+        profilePicture.addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
                 if (file.size > 5 * 1024 * 1024) {
-                    document.getElementById('errorMessage').textContent = "File size must be less than 5MB";
-                    event.target.value = '';
+                    errorMessage.textContent = "File size must be less than 5MB";
+                    profilePicture.value = '';
                     return;
                 }
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.getElementById('profilePreview').src = e.target.result;
+                    profilePreview.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        document.getElementById('signupForm').addEventListener('submit', async function(event) {
+        signupForm.addEventListener('submit', async function(event) {
             event.preventDefault();
-            document.getElementById('errorMessage').textContent = '';
-            
+            errorMessage.textContent = '';
+
             const formData = new FormData();
             formData.append('name', document.getElementById('name').value);
             formData.append('designation', document.getElementById('designation').value);
@@ -89,7 +242,7 @@
             if (profilePicFile) {
                 formData.append('profilePicture', profilePicFile);
             }
-            
+
             try {
                 const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
                     method: 'POST',
@@ -101,11 +254,11 @@
                     alert(data.message);
                     window.location.href = "thankYou.html";
                 } else {
-                    document.getElementById('errorMessage').textContent = data.message || "An error occurred during signup.";
+                    errorMessage.textContent = data.message || "An error occurred during signup.";
                 }
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('errorMessage').textContent = "Failed to connect to the server.";
+                errorMessage.textContent = "Failed to connect to the server.";
             }
         });
     </script>
