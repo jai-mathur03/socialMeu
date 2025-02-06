@@ -4,33 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Socialite</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: Inter, sans-serif;
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
-            background-color: #f8f9fa;
+            background-color: #f4f4f4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .content-box {
+        .container {
+            display: flex;
             background: white;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+            width: 900px;
+            height: 600px;
+        }
+
+        .gradientSlide {
+            background: linear-gradient(135deg, #0061f2 0%, #00a7e1 100%);
+            color: white;
             padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            width: 100%;
-            max-width: 400px;
+            text-align: center;
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gradientSlide img {
+            width: 120px;
+            margin-bottom: 20px;
+        }
+
+        .membersText, .adminText {
+            margin: 10px 0;
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .formBox {
+            flex: 1;
+            padding: 40px;
+            background: white;
+            overflow-y: auto;
         }
 
         h2 {
-            color: #212529;
-            margin: 0 0 24px 0;
-            font-size: 24px;
-            font-weight: 500;
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .blueContainer {
+            background: #e8f0fe;
+            color: #0061f2;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 30px;
         }
 
         .profile-upload {
@@ -42,134 +83,161 @@
             width: 150px;
             height: 150px;
             border-radius: 50%;
-            border: 1px solid #dee2e6;
+            object-fit: cover;
             margin: 10px auto;
             display: block;
+            border: 2px solid #ddd;
         }
 
-        .input-group {
+        .inputGroup {
             position: relative;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
-        .input-group input {
-            width: 100%;
-            padding: 12px 12px 12px 40px;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            font-size: 16px;
-            box-sizing: border-box;
-            color: #495057;
-        }
-
-        .input-group i {
+        .inputGroup i {
             position: absolute;
-            left: 12px;
+            left: 15px;
             top: 50%;
             transform: translateY(-50%);
-            color: #adb5bd;
+            color: #666;
+        }
+
+        .inputGroup input {
+            width: 100%;
+            padding: 12px 40px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .inputGroup input:focus {
+            outline: none;
+            border-color: #0061f2;
         }
 
         button {
-            width: 100%;
+            background: #0061f2;
+            color: white;
             padding: 12px;
             border: none;
             border-radius: 8px;
+            width: 100%;
             font-size: 16px;
-            font-weight: 500;
             cursor: pointer;
-            margin: 8px 0;
+            margin: 10px 0;
+            transition: transform 0.2s;
         }
 
-        .signup-btn {
-            background-color: #ff5c35;
-            color: white;
+        button:hover {
+            transform: translateY(-2px);
         }
 
-        .signin-btn {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .google-btn {
-            background-color: white;
-            border: 1px solid #dee2e6;
-            color: #212529;
+        .btnSocial {
+            background: white;
+            border: 1px solid #ddd;
+            color: #333;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
+        }
+
+        .btnSocial i {
+            font-size: 18px;
         }
 
         .error {
             color: #dc3545;
+            margin: 5px 0;
             font-size: 14px;
-            margin: 8px 0;
             text-align: center;
         }
 
-        .divider {
+        .switchLink {
             text-align: center;
-            margin: 20px 0;
-            color: #6c757d;
+            margin-top: 20px;
+            color: #666;
         }
 
-        .member-text {
-            text-align: center;
-            margin: 16px 0;
-            color: #495057;
+        .switchLink a {
+            color: #0061f2;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        #file-upload-btn {
+            background: #e8f0fe;
+            color: #0061f2;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+            margin-top: 10px;
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="content-box">
-        <h2>Sign up:</h2>
-        <form class="signup-form" id="signupForm" enctype="multipart/form-data">
-            <div class="profile-upload">
-                <img id="profilePreview" src="https://via.placeholder.com/150" alt="Profile Preview" class="profile-preview">
-                <input type="file" id="profilePicture" accept="image/*" required>
-            </div>
-
-            <div class="input-group">
-                <i class="fas fa-user"></i>
-                <input type="text" id="name" placeholder="Name" required>
-            </div>
-
-            <div class="input-group">
-                <i class="fas fa-briefcase"></i>
-                <input type="text" id="designation" placeholder="Designation" required>
-            </div>
-
-            <div class="input-group">
-                <i class="fas fa-envelope"></i>
-                <input type="email" id="email" placeholder="Email" required>
-            </div>
-
-            <div class="input-group">
-                <i class="fas fa-lock"></i>
-                <input type="password" id="password" placeholder="Password" required>
-            </div>
-
-            <div class="input-group">
-                <i class="fas fa-lock"></i>
-                <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
-            </div>
-
-            <p class="error" id="errorMessage"></p>
+    <div class="container">
+        <div class="gradientSlide">
+            <img src="hitachiLogo.png" alt="Socialite">
+            <h2 style="color: white; margin-top: 20px;">Socialite</h2>
+            <span class="membersText">Members</span>
+            <span class="adminText">Admin</span>
+        </div>
+        <div class="formBox">
+            <h2>Sign Up</h2>
+            <div class="blueContainer">Create your account</div>
             
-            <button type="submit" class="signup-btn">Sign Up</button>
+            <form class="signup-form" id="signupForm" enctype="multipart/form-data">
+                <div class="profile-upload">
+                    <img id="profilePreview" src="https://via.placeholder.com/150" alt="Profile Preview" class="profile-preview">
+                    <label id="file-upload-btn">
+                        <i class="fas fa-camera"></i> Upload Photo
+                        <input type="file" id="profilePicture" accept="image/*" required style="display: none;">
+                    </label>
+                </div>
 
-            <button type="button" class="google-btn">
-                <img src="google-icon.png" alt="Google" width="18" height="18">
-                Sign up with Google
-            </button>
+                <div class="inputGroup">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="name" placeholder="Name" required>
+                </div>
 
-            <div class="member-text">Already a member?</div>
-            <a href="login.html" style="text-decoration: none;">
-                <button type="button" class="signin-btn">Sign In</button>
-            </a>
-        </form>
+                <div class="inputGroup">
+                    <i class="fas fa-briefcase"></i>
+                    <input type="text" id="designation" placeholder="Designation" required>
+                </div>
+
+                <div class="inputGroup">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" placeholder="Email" required>
+                </div>
+
+                <div class="inputGroup">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" placeholder="Password" required>
+                </div>
+
+                <div class="inputGroup">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+                </div>
+
+                <p class="error" id="errorMessage"></p>
+                <button type="submit">Sign Up</button>
+
+                <div class="socialLogin">
+                    <p>Or sign up with:</p>
+                    <button type="button" class="btnSocial">
+                        <i class="fab fa-google"></i> Google
+                    </button>
+                </div>
+
+                <div class="switchLink">
+                    Already a member? <a href="login.html">Sign In</a>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -182,6 +250,7 @@
         const signupForm = document.getElementById('signupForm');
         const errorMessage = document.getElementById('errorMessage');
 
+        // Profile picture preview functionality
         profilePicture.addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
@@ -198,6 +267,7 @@
             }
         });
 
+        // Form submission handling
         signupForm.addEventListener('submit', async function(event) {
             event.preventDefault();
             errorMessage.textContent = '';
