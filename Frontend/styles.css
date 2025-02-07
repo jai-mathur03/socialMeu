@@ -1,69 +1,19 @@
+
 body {
     font-family: 'Inter', sans-serif;
     margin: 0;
     padding: 0;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     min-height: 100vh;
     background-color: #f4f4f4;
-}
-
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #333;
-    color: white;
-    padding: 10px 20px;
-    width: 100%;
-    position: fixed;
-    top: 0;
-    z-index: 1000;
-    box-sizing: border-box;
-}
-
-.navbar img {
-    height: 40px;
-}
-
-.dropdown {
-    position: relative;
-}
-
-.dropdown button {
-    background-color: #444;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    cursor: pointer;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    right: 0;
-    background-color: #555;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-    z-index: 1;
-}
-
-.dropdown-content a {
-    color: white;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-}
-
-.dropdown:hover .dropdown-content {
-    display: block;
 }
 
 .container {
     position: relative;
     width: 800px;
     height: 500px;
-    margin: 100px auto 20px;
     background: #fff;
     border-radius: 20px;
     box-shadow: 0 15px 30px rgba(0,0,0,0.1);
@@ -82,6 +32,7 @@ body {
     justify-content: center;
     color: white;
     z-index: 1;
+    left: 0;
 }
 
 .gradientSlide.shiftLeft {
@@ -112,17 +63,22 @@ body {
     transition: transform 0.5s ease-in-out;
 }
 
-.formBox:first-of-type {
-    left: 0;
+.formBox.left {
+    left: 50%;
 }
 
-.formBox:last-of-type {
+.formBox.right {
     right: 0;
+}
+
+.formBox.hidden {
+    display: none;
 }
 
 .formBox h2 {
     margin: 0 0 20px;
     text-align: center;
+    color: #333;
 }
 
 .blueContainer {
@@ -149,10 +105,16 @@ body {
 
 .inputGroup input {
     width: 100%;
-    padding: 10px 10px 10px 35px;
+    padding: 12px 10px 12px 35px;
     border: 1px solid #ddd;
     border-radius: 5px;
     box-sizing: border-box;
+    font-size: 14px;
+}
+
+.inputGroup input:focus {
+    outline: none;
+    border-color: #2196f3;
 }
 
 .rememberMe {
@@ -186,18 +148,14 @@ body {
     text-align: center;
 }
 
-.social-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
 .btnSocial {
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
     padding: 10px;
+    margin: 10px 0;
     border: none;
     border-radius: 5px;
     color: white;
@@ -211,7 +169,6 @@ body {
 
 .google { background-color: #db4437; }
 .apple { background-color: #000; }
-.x { background-color: #1da1f2; }
 
 .switchLink {
     text-align: center;
@@ -221,6 +178,10 @@ body {
 .switchLink a {
     color: #2196f3;
     text-decoration: none;
+}
+
+.switchLink a:hover {
+    text-decoration: underline;
 }
 
 .loadingSpinner {
@@ -239,7 +200,7 @@ body {
 }
 
 .error-message {
-    color: red;
+    color: #f44336;
     margin-top: 10px;
     text-align: center;
     display: none;
