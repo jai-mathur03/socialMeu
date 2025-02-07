@@ -1,1 +1,287 @@
+/* Global Styles */
+body {
+    font-family: 'Inter', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f4f4f4;
+}
 
+/* Navbar Styles */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar img {
+    height: 40px;
+}
+
+/* Dropdown Menu Styles */
+.dropdown {
+    position: relative;
+}
+
+.dropdown button {
+    background-color: #444;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.dropdown button:hover {
+    background-color: #555;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: #555;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: white;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.3s ease;
+}
+
+.dropdown-content a:hover {
+    background-color: #666;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Container Styles */
+.container {
+    display: flex;
+    width: 100%;
+    max-width: 1000px;
+    height: 600px;
+    background-color: white;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Gradient Slide Styles */
+.gradientSlide {
+    width: 40%;
+    background: linear-gradient(135deg, #007bff, #00d4ff);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    transition: transform 0.5s ease;
+}
+
+.gradientSlide.shiftLeft {
+    transform: translateX(150%);
+}
+
+.gradientSlide img {
+    max-width: 150px;
+    margin-bottom: 20px;
+}
+
+.gradientSlide h2 {
+    margin: 10px 0;
+    font-size: 24px;
+}
+
+.membersText, .adminText {
+    margin: 10px 0;
+    opacity: 0.7;
+}
+
+/* Form Box Styles */
+.formBox {
+    width: 60%;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.formBox h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.blueContainer {
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+/* Input Group Styles */
+.inputGroup {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.inputGroup i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #777;
+}
+
+.inputGroup input {
+    width: 100%;
+    padding: 10px 10px 10px 30px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
+}
+
+.inputGroup input:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.rememberMe {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.rememberMe input {
+    margin-right: 10px;
+}
+
+/* Button Styles */
+.btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+/* Social Login Styles */
+.socialLogin {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.btnSocial {
+    margin: 0 10px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.btnSocial:hover {
+    opacity: 0.8;
+}
+
+.btnSocial.google {
+    background-color: #db4437;
+    color: white;
+}
+
+.btnSocial.apple {
+    background-color: #000;
+    color: white;
+}
+
+.btnSocial.x {
+    background-color: #000;
+    color: white;
+}
+
+/* Loading Spinner */
+.loadingSpinner {
+    display: none;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.loadingSpinner i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Switch Link */
+.switchLink {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.switchLink a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.switchLink a:hover {
+    text-decoration: underline;
+}
+
+/* Error Message */
+.error-message {
+    color: red;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+        max-width: 95%;
+    }
+
+    .gradientSlide, .formBox {
+        width: 100%;
+    }
+
+    .gradientSlide {
+        order: -1;
+        height: 200px;
+    }
+
+    .formBox {
+        padding: 20px;
+    }
+}
