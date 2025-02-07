@@ -28,7 +28,7 @@
         </div>
 
         <div class="formBox" id="leftForm">
-            <h2>Log In</h2>
+            <h2>Member Login</h2>
             <div class="blueContainer">As a member</div>
             <form id="memberLoginForm">
                 <div class="inputGroup">
@@ -43,19 +43,21 @@
                     <input type="checkbox" id="rememberMeMember">
                     <label for="rememberMeMember">Remember Me</label>
                 </div>
-                <button class="btn" type="submit">LOG IN</button>
-                <p id="memberError" class="error-message" style="color: red; display: none;"></p>
+                <button class="btn" type="submit" onclick="handleMemberLogin()">LOG IN</button>
+                <p id="memberError" class="error-message"></p>
                 <div class="socialLogin">
                     <p>Or log in with:</p>
-                    <button type="button" class="btnSocial google" onclick="handleGoogleLogin()">
-                        <i class="fab fa-google"></i> Google
-                    </button>
-                    <button type="button" class="btnSocial apple" onclick="handleAppleLogin()">
-                        <i class="fab fa-apple"></i> Apple
-                    </button>
-                    <button type="button" class="btnSocial x" onclick="handleXLogin()">
-                        <i class="fab fa-x"></i> X
-                    </button>
+                    <div class="social-buttons">
+                        <button type="button" class="btnSocial google" onclick="handleGoogleLogin()">
+                            <i class="fab fa-google"></i> Google
+                        </button>
+                        <button type="button" class="btnSocial apple" onclick="handleAppleLogin()">
+                            <i class="fab fa-apple"></i> Apple
+                        </button>
+                        <button type="button" class="btnSocial x" onclick="handleXLogin()">
+                            <i class="fab fa-twitter"></i> X
+                        </button>
+                    </div>
                 </div>
                 <div class="loadingSpinner" id="loadingSpinner">
                     <i class="fas fa-spinner"></i> Logging in...
@@ -66,13 +68,13 @@
             </div>
         </div>
 
-        <div class="formBox" id="adminForm" style="display: none;">
-            <h2>Log In</h2>
+        <div class="formBox">
+            <h2>Admin Login</h2>
             <div class="blueContainer">As an admin</div>
             <form id="adminLoginForm">
                 <div class="inputGroup">
                     <i class="fas fa-envelope"></i>
-                    <input type="email" id="adminEmail" placeholder="Admin Email" required>
+                    <input type="email" id="adminEmail" placeholder="Email" required>
                 </div>
                 <div class="inputGroup">
                     <i class="fas fa-lock"></i>
@@ -82,8 +84,22 @@
                     <input type="checkbox" id="rememberMeAdmin">
                     <label for="rememberMeAdmin">Remember Me</label>
                 </div>
-                <button class="btn" type="submit">LOG IN</button>
-                <p id="adminError" class="error-message" style="color: red; display: none;"></p>
+                <button class="btn" type="submit" onclick="handleAdminLogin()">LOG IN</button>
+                <p id="adminError" class="error-message"></p>
+                <div class="socialLogin">
+                    <p>Or log in with:</p>
+                    <div class="social-buttons">
+                        <button type="button" class="btnSocial google" onclick="handleGoogleLogin()">
+                            <i class="fab fa-google"></i> Google
+                        </button>
+                        <button type="button" class="btnSocial apple" onclick="handleAppleLogin()">
+                            <i class="fab fa-apple"></i> Apple
+                        </button>
+                        <button type="button" class="btnSocial x" onclick="handleXLogin()">
+                            <i class="fab fa-twitter"></i> X
+                        </button>
+                    </div>
+                </div>
                 <div class="loadingSpinner" id="loadingSpinnerAdmin">
                     <i class="fas fa-spinner"></i> Logging in...
                 </div>
@@ -101,67 +117,18 @@
 
         function shiftContainer() {
             const gradient = document.getElementById('gradientSlide');
-            const memberForm = document.getElementById('leftForm');
-            const adminForm = document.getElementById('adminForm');
-
             gradient.classList.toggle('shiftLeft');
-            
-            if (memberForm.style.display !== 'none') {
-                memberForm.style.display = 'none';
-                adminForm.style.display = 'flex';
-            } else {
-                memberForm.style.display = 'flex';
-                adminForm.style.display = 'none';
-            }
         }
 
-        // Member Login
-        document.getElementById('memberLoginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const email = document.getElementById('memberEmail').value;
-            const password = document.getElementById('memberPassword').value;
-            const errorElement = document.getElementById('memberError');
-            const loadingSpinner = document.getElementById('loadingSpinner');
-
-            loadingSpinner.style.display = 'block';
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('isAdmin', 'false');
-                    window.location.href = 'main.html';
-                } else {
-                    errorElement.textContent = data.message || 'Login failed';
-                    errorElement.style.display = 'block';
-                }
-            } catch (error) {
-                errorElement.textContent = 'An error occurred. Please try again.';
-                errorElement.style.display = 'block';
-            } finally {
-                loadingSpinner.style.display = 'none';
-            }
-        });
-
-        // Admin Login
-        document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        async function handleAdminLogin(e) {
+            if (e) e.preventDefault();
             const email = document.getElementById('adminEmail').value;
             const password = document.getElementById('adminPassword').value;
             const errorElement = document.getElementById('adminError');
             const loadingSpinner = document.getElementById('loadingSpinnerAdmin');
-
+            
             loadingSpinner.style.display = 'block';
-
+            
             try {
                 const response = await fetch(`${API_BASE_URL}/api/auth/admin-login`, {
                     method: 'POST',
@@ -170,9 +137,8 @@
                     },
                     body: JSON.stringify({ email, password })
                 });
-
                 const data = await response.json();
-
+                
                 if (response.ok) {
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('isAdmin', 'true');
@@ -187,9 +153,43 @@
             } finally {
                 loadingSpinner.style.display = 'none';
             }
-        });
+        }
 
-        // Social login handlers (placeholders)
+        async function handleMemberLogin(e) {
+            if (e) e.preventDefault();
+            const email = document.getElementById('memberEmail').value;
+            const password = document.getElementById('memberPassword').value;
+            const errorElement = document.getElementById('memberError');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            
+            loadingSpinner.style.display = 'block';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('isAdmin', 'false');
+                    window.location.href = 'main.html';
+                } else {
+                    errorElement.textContent = data.message || 'Login failed';
+                    errorElement.style.display = 'block';
+                }
+            } catch (error) {
+                errorElement.textContent = 'An error occurred. Please try again.';
+                errorElement.style.display = 'block';
+            } finally {
+                loadingSpinner.style.display = 'none';
+            }
+        }
+
         function handleGoogleLogin() {
             console.log('Google login clicked');
         }
@@ -201,6 +201,9 @@
         function handleXLogin() {
             console.log('X login clicked');
         }
+
+        document.getElementById('adminLoginForm').addEventListener('submit', handleAdminLogin);
+        document.getElementById('memberLoginForm').addEventListener('submit', handleMemberLogin);
     </script>
 </body>
 </html>
