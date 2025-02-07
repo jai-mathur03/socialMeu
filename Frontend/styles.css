@@ -4,9 +4,16 @@
     box-sizing: border-box;
 }
 
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --background-color: #f4f4f4;
+    --text-color: #333;
+}
+
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #f4f4f4;
+    background-color: var(--background-color);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -14,63 +21,65 @@ body {
     line-height: 1.6;
 }
 
-/* Navbar Styles */
-.navbar {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    background-color: #333;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    z-index: 1000;
-}
-
-.navbar img {
-    height: 40px;
-}
-
-/* Container Styles */
-.container {
-    display: flex;
+.login-container {
     width: 100%;
     max-width: 1000px;
-    height: 600px;
     background-color: white;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
     overflow: hidden;
+    display: flex;
 }
 
-/* Gradient Slide Section */
-.gradientSlide {
+.login-wrapper {
+    display: flex;
+    width: 100%;
+}
+
+.login-sidebar {
     width: 40%;
-    background: linear-gradient(135deg, #007bff, #00d4ff);
+    background: linear-gradient(135deg, var(--primary-color), #00d4ff);
     color: white;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 20px;
-    transition: transform 0.5s ease;
+    padding: 30px;
+    text-align: center;
 }
 
-.gradientSlide.shiftLeft {
-    transform: translateX(150%);
+.sidebar-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.gradientSlide img {
-    width: 200px;
-    height: 200px;
+.logo {
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     border: 3px solid white;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
-/* Form Box Styles */
-.formBox {
+.mode-indicator {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.mode-indicator span {
+    opacity: 0.5;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.mode-indicator span.active {
+    opacity: 1;
+    font-weight: bold;
+}
+
+.login-forms {
     width: 60%;
     padding: 40px;
     display: flex;
@@ -78,131 +87,116 @@ body {
     justify-content: center;
 }
 
-.formBox h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #333;
+.form-section {
+    display: none;
 }
 
-.blueContainer {
-    background-color: #007bff;
-    color: white;
-    text-align: center;
-    padding: 10px;
-    margin-bottom: 20px;
-    border-radius: 4px;
+.form-section.active {
+    display: block;
 }
 
-/* Input Group Styles */
-.inputGroup {
+.form-section h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--text-color);
+}
+
+.input-group {
     position: relative;
     margin-bottom: 15px;
 }
 
-.inputGroup i {
+.input-group i {
     position: absolute;
     left: 10px;
     top: 50%;
     transform: translateY(-50%);
-    color: #777;
+    color: var(--secondary-color);
 }
 
-.inputGroup input {
+.input-group input {
     width: 100%;
-    padding: 10px 10px 10px 30px;
+    padding: 10px 10px 10px 35px;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 5px;
+    font-size: 16px;
 }
 
-.inputGroup input:focus {
+.input-group input:focus {
     outline: none;
-    border-color: #007bff;
+    border-color: var(--primary-color);
 }
 
-/* Remember Me Styles */
-.rememberMe {
+.form-extras {
     display: flex;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
 }
 
-.rememberMe input {
+.remember-me {
+    display: flex;
+    align-items: center;
+}
+
+.remember-me input {
     margin-right: 10px;
 }
 
-/* Button Styles */
-.btn {
+.login-btn {
     width: 100%;
     padding: 10px;
-    background-color: #007bff;
+    background-color: var(--primary-color);
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s;
 }
 
-.btn:hover {
+.login-btn:hover {
     background-color: #0056b3;
 }
 
-/* Social Login Styles */
-.socialLogin {
+.error-message {
+    color: red;
+    text-align: center;
+    margin-top: 10px;
+    display: none;
+}
+
+.social-login {
     margin-top: 20px;
     text-align: center;
 }
 
-.socialLogin p {
-    margin-bottom: 10px;
+.social-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-.btnSocial {
-    display: inline-block;
-    width: 100%;
+.social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 10px;
-    margin: 5px 0;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 5px;
     background: white;
     cursor: pointer;
 }
 
-.btnSocial i {
+.social-btn i {
     margin-right: 10px;
 }
 
-/* Switch Link Styles */
-.switchLink {
+.form-switch {
     text-align: center;
     margin-top: 15px;
-    font-size: 14px;
 }
 
-.switchLink a {
-    color: #007bff;
+.form-switch a {
+    color: var(--primary-color);
     text-decoration: none;
-}
-
-/* Loading Spinner Styles */
-.loadingSpinner {
-    display: none;
-    text-align: center;
-    margin-top: 10px;
-}
-
-.loadingSpinner i {
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Error Message Styles */
-.error-message {
-    color: red;
-    display: none;
-    text-align: center;
-    margin-top: 10px;
 }
