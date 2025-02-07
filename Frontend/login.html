@@ -3,90 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Socialite - Login</title>
+    <title>Login - Socialite</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="assets/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar img {
+            height: 40px;
+        }
+        .dropdown {
+            position: relative;
+        }
+        .dropdown button {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #555;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .dropdown-content a {
+            color: white;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1000px;
+            height: 600px;
+            background-color: white;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .gradientSlide {
+            width: 40%;
+            background: linear-gradient(135deg, #007bff, #00d4ff);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: transform 0.5s ease;
+        }
+        .gradientSlide.shiftLeft {
+            transform: translateX(150%);
+        }
+        .formBox {
+            width: 60%;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .inputGroup {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        .inputGroup i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #777;
+        }
+        .inputGroup input {
+            width: 100%;
+            padding: 10px 10px 10px 30px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .loadingSpinner {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .loadingSpinner i {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-wrapper">
-            <div class="login-sidebar">
-                <div class="sidebar-content">
-                    <img src="ice.png" alt="Socialite Logo" class="logo">
-                    <h1>Socialite</h1>
-                    <div class="mode-indicator">
-                        <span class="members-mode active">Members</span>
-                        <span class="admin-mode">Admin</span>
-                    </div>
-                </div>
+    <div class="navbar">
+        <img src="hitachiLogo.png" alt="Socialite">
+        <div class="dropdown">
+            <button>Menu</button>
+            <div class="dropdown-content">
+                <a href="frontPage.html">Home</a>
             </div>
-            
-            <div class="login-forms">
-                <div class="form-section member-login active">
-                    <h2>Member Login</h2>
-                    <form id="memberLoginForm">
-                        <div class="input-group">
-                            <i class="fas fa-envelope"></i>
-                            <input type="email" id="memberEmail" placeholder="Email" required>
-                        </div>
-                        <div class="input-group">
-                            <i class="fas fa-lock"></i>
-                            <input type="password" id="memberPassword" placeholder="Password" required>
-                        </div>
-                        <div class="form-extras">
-                            <div class="remember-me">
-                                <input type="checkbox" id="rememberMeMember">
-                                <label for="rememberMeMember">Remember Me</label>
-                            </div>
-                        </div>
-                        <button type="submit" class="login-btn">Log In</button>
-                        <p id="memberError" class="error-message"></p>
-                        
-                        <div class="social-login">
-                            <p>Or continue with:</p>
-                            <div class="social-buttons">
-                                <button type="button" class="social-btn google" onclick="handleGoogleLogin()">
-                                    <i class="fab fa-google"></i> Google
-                                </button>
-                                <button type="button" class="social-btn apple" onclick="handleAppleLogin()">
-                                    <i class="fab fa-apple"></i> Apple
-                                </button>
-                                <button type="button" class="social-btn x" onclick="handleXLogin()">
-                                    <i class="fab fa-x"></i> X
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                    <div class="form-switch">
-                        <p>Admin login? <a href="#" id="switchToAdmin">Switch here</a></p>
-                    </div>
-                </div>
+        </div>
+    </div>
 
-                <div class="form-section admin-login">
-                    <h2>Admin Login</h2>
-                    <form id="adminLoginForm">
-                        <div class="input-group">
-                            <i class="fas fa-envelope"></i>
-                            <input type="email" id="adminEmail" placeholder="Admin Email" required>
-                        </div>
-                        <div class="input-group">
-                            <i class="fas fa-lock"></i>
-                            <input type="password" id="adminPassword" placeholder="Password" required>
-                        </div>
-                        <div class="form-extras">
-                            <div class="remember-me">
-                                <input type="checkbox" id="rememberMeAdmin">
-                                <label for="rememberMeAdmin">Remember Me</label>
-                            </div>
-                        </div>
-                        <button type="submit" class="login-btn">Log In</button>
-                        <p id="adminError" class="error-message"></p>
-                    </form>
-                    <div class="form-switch">
-                        <p>Member login? <a href="#" id="switchToMember">Switch here</a></p>
-                    </div>
+    <div class="container">
+        <div class="gradientSlide" id="gradientSlide">
+            <img src="ice.png" alt="Logo">
+            <div><h2 style="font-family: Crutsen">Socialite</h2></div>
+            <span class="membersText">Members</span>
+            <span class="adminText">Admin</span>
+        </div>
+
+        <div class="formBox" id="leftForm">
+            <h2>Log In</h2>
+            <div class="blueContainer">As a member</div>
+            <form id="memberLoginForm">
+                <div class="inputGroup">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="memberEmail" placeholder="Email" required>
                 </div>
+                <div class="inputGroup">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="memberPassword" placeholder="Password" required>
+                </div>
+                <div class="rememberMe">
+                    <input type="checkbox" id="rememberMeMember">
+                    <label for="rememberMeMember">Remember Me</label>
+                </div>
+                <button class="btn" type="submit">LOG IN</button>
+                <p id="memberError" class="error-message" style="color: red; display: none;"></p>
+                <div class="socialLogin">
+                    <p>Or log in with:</p>
+                    <button type="button" class="btnSocial google" onclick="handleGoogleLogin()">
+                        <i class="fab fa-google"></i> Google
+                    </button>
+                    <button type="button" class="btnSocial apple" onclick="handleAppleLogin()">
+                        <i class="fab fa-apple"></i> Apple
+                    </button>
+                    <button type="button" class="btnSocial x" onclick="handleXLogin()">
+                        <i class="fab fa-x"></i> X
+                    </button>
+                </div>
+                <div class="loadingSpinner" id="loadingSpinner">
+                    <i class="fas fa-spinner"></i> Logging in...
+                </div>
+            </form>
+            <div class="switchLink">
+                Login as an admin? <a href="#" onclick="shiftContainer()">Click here</a>
+            </div>
+        </div>
+
+        <div class="formBox" id="adminForm" style="display: none;">
+            <h2>Log In</h2>
+            <div class="blueContainer">As an admin</div>
+            <form id="adminLoginForm">
+                <div class="inputGroup">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="adminEmail" placeholder="Admin Email" required>
+                </div>
+                <div class="inputGroup">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="adminPassword" placeholder="Password" required>
+                </div>
+                <div class="rememberMe">
+                    <input type="checkbox" id="rememberMeAdmin">
+                    <label for="rememberMeAdmin">Remember Me</label>
+                </div>
+                <button class="btn" type="submit">LOG IN</button>
+                <p id="adminError" class="error-message" style="color: red; display: none;"></p>
+                <div class="loadingSpinner" id="loadingSpinnerAdmin">
+                    <i class="fas fa-spinner"></i> Logging in...
+                </div>
+            </form>
+            <div class="switchLink">
+                Login as a member? <a href="#" onclick="shiftContainer()">Click here</a>
             </div>
         </div>
     </div>
@@ -96,36 +223,43 @@
             ? 'http://localhost:5002'
             : 'https://socialphew.onrender.com';
 
-        // Form switch logic
-        document.getElementById('switchToAdmin').addEventListener('click', () => {
-            document.querySelector('.member-login').classList.remove('active');
-            document.querySelector('.admin-login').classList.add('active');
-            document.querySelector('.members-mode').classList.remove('active');
-            document.querySelector('.admin-mode').classList.add('active');
-        });
+        function shiftContainer() {
+            const gradient = document.getElementById('gradientSlide');
+            const memberForm = document.getElementById('leftForm');
+            const adminForm = document.getElementById('adminForm');
 
-        document.getElementById('switchToMember').addEventListener('click', () => {
-            document.querySelector('.admin-login').classList.remove('active');
-            document.querySelector('.member-login').classList.add('active');
-            document.querySelector('.admin-mode').classList.remove('active');
-            document.querySelector('.members-mode').classList.add('active');
-        });
+            gradient.classList.toggle('shiftLeft');
+            
+            if (memberForm.style.display !== 'none') {
+                memberForm.style.display = 'none';
+                adminForm.style.display = 'flex';
+            } else {
+                memberForm.style.display = 'flex';
+                adminForm.style.display = 'none';
+            }
+        }
 
-        // Member Login Handler
-        document.getElementById('memberLoginForm').addEventListener('submit', async (e) => {
+        // Member Login
+        document.getElementById('memberLoginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const email = document.getElementById('memberEmail').value;
             const password = document.getElementById('memberPassword').value;
             const errorElement = document.getElementById('memberError');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+
+            loadingSpinner.style.display = 'block';
 
             try {
                 const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({ email, password })
                 });
 
                 const data = await response.json();
+
                 if (response.ok) {
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('isAdmin', 'false');
@@ -137,24 +271,32 @@
             } catch (error) {
                 errorElement.textContent = 'An error occurred. Please try again.';
                 errorElement.style.display = 'block';
+            } finally {
+                loadingSpinner.style.display = 'none';
             }
         });
 
-        // Admin Login Handler
-        document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+        // Admin Login
+        document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const email = document.getElementById('adminEmail').value;
             const password = document.getElementById('adminPassword').value;
             const errorElement = document.getElementById('adminError');
+            const loadingSpinner = document.getElementById('loadingSpinnerAdmin');
+
+            loadingSpinner.style.display = 'block';
 
             try {
                 const response = await fetch(`${API_BASE_URL}/api/auth/admin-login`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({ email, password })
                 });
 
                 const data = await response.json();
+
                 if (response.ok) {
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('isAdmin', 'true');
@@ -166,13 +308,23 @@
             } catch (error) {
                 errorElement.textContent = 'An error occurred. Please try again.';
                 errorElement.style.display = 'block';
+            } finally {
+                loadingSpinner.style.display = 'none';
             }
         });
 
-        // Social login placeholders
-        function handleGoogleLogin() { console.log('Google login clicked'); }
-        function handleAppleLogin() { console.log('Apple login clicked'); }
-        function handleXLogin() { console.log('X login clicked'); }
+        // Social login handlers (placeholders)
+        function handleGoogleLogin() {
+            console.log('Google login clicked');
+        }
+
+        function handleAppleLogin() {
+            console.log('Apple login clicked');
+        }
+
+        function handleXLogin() {
+            console.log('X login clicked');
+        }
     </script>
 </body>
 </html>
