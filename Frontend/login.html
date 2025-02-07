@@ -1,95 +1,93 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Socialite</title>
+    <title>Socialite - Login</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Gradient Sliding Container -->
-        <div class="gradientSlide" id="gradientSlide">
-            <img src="ice.png" alt="Logo">
-            <div><h2>Socialite</h2></div>
-            <span class="membersText">Members</span>
-            <span class="adminText">Admin</span>
+    <div class="navbar">
+        <img src="hitachiLogo.png" alt="Socialite">
+        <div class="dropdown">
+            <button>Menu</button>
+            <div class="dropdown-content">
+                <a href="frontPage.html">Home</a>
+            </div>
         </div>
+    </div>
 
-        <!-- Member Form -->
-        <div class="formBox left" id="memberFormBox">
-            <h2>Member Login</h2>
-            <div class="blueContainer">As a member</div>
-            <form id="memberLoginForm">
-                <div class="inputGroup">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" id="memberEmail" placeholder="Email" required>
-                </div>
-                <div class="inputGroup">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="memberPassword" placeholder="Password" required>
-                </div>
-                <div class="rememberMe">
-                    <input type="checkbox" id="rememberMeMember">
-                    <label for="rememberMeMember">Remember Me</label>
-                </div>
-                <button class="btn" type="submit">LOG IN</button>
-                <p id="memberError" class="error-message"></p>
-                <div class="socialLogin">
-                    <p>Or log in with:</p>
-                    <button type="button" class="btnSocial google" onclick="handleGoogleLogin()">
-                        <i class="fab fa-google"></i> Google
-                    </button>
-                    <button type="button" class="btnSocial apple" onclick="handleAppleLogin()">
-                        <i class="fab fa-apple"></i> Apple
-                    </button>
-                </div>
-                <div class="loadingSpinner" id="loadingSpinner">
-                    <i class="fas fa-spinner"></i> Logging in...
-                </div>
-            </form>
-            <div class="switchLink">
-                Login as an admin? <a href="#" onclick="shiftContainer()">Click here</a>
+    <div class="login-container">
+        <div class="blue-side" id="blueSide">
+            <img src="ice.png" alt="Logo">
+            <h1>Socialite</h1>
+            <div class="text-overlay">
+                <p class="active" id="memberText">Members</p>
+                <p id="adminText">Admin</p>
             </div>
         </div>
 
-        <!-- Admin Form -->
-        <div class="formBox right" id="adminFormBox">
-            <h2>Admin Login</h2>
-            <div class="blueContainer">As an admin</div>
-            <form id="adminLoginForm">
-                <div class="inputGroup">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" id="adminEmail" placeholder="Email" required>
-                </div>
-                <div class="inputGroup">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="adminPassword" placeholder="Password" required>
-                </div>
-                <div class="rememberMe">
-                    <input type="checkbox" id="rememberMeAdmin">
-                    <label for="rememberMeAdmin">Remember Me</label>
-                </div>
-                <button class="btn" type="submit">LOG IN</button>
-                <p id="adminError" class="error-message"></p>
-                <div class="socialLogin">
-                    <p>Or log in with:</p>
-                    <button type="button" class="btnSocial google" onclick="handleGoogleLogin()">
-                        <i class="fab fa-google"></i> Google
-                    </button>
-                    <button type="button" class="btnSocial apple" onclick="handleAppleLogin()">
-                        <i class="fab fa-apple"></i> Apple
-                    </button>
-                </div>
-                <div class="loadingSpinner" id="loadingSpinnerAdmin">
-                    <i class="fas fa-spinner"></i> Logging in...
-                </div>
-            </form>
-            <div class="switchLink">
-                Login as a member? <a href="#" onclick="shiftContainer()">Click here</a>
+        <div class="white-side">
+            <div class="form-container member-form" id="memberForm">
+                <h2>Member Login</h2>
+                <div class="subtitle">As a member</div>
+                <form onsubmit="handleMemberLogin(event)">
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="memberEmail" placeholder="Email" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="memberPassword" placeholder="Password" required>
+                    </div>
+                    <div class="remember-me">
+                        <input type="checkbox" id="memberRemember">
+                        <label for="memberRemember">Remember Me</label>
+                    </div>
+                    <button type="submit" class="login-btn">LOG IN</button>
+                    <div id="memberError" class="error"></div>
+                    <div class="social-login">
+                        <p>Or log in with:</p>
+                        <button type="button" class="google-btn" onclick="handleGoogleLogin()">
+                            <i class="fab fa-google"></i> Google
+                        </button>
+                    </div>
+                </form>
+                <p class="switch-text">
+                    Login as an admin? <a href="#" onclick="toggleForms()">Click here</a>
+                </p>
+            </div>
+
+            <div class="form-container admin-form" id="adminForm">
+                <h2>Admin Login</h2>
+                <div class="subtitle">As an admin</div>
+                <form onsubmit="handleAdminLogin(event)">
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="adminEmail" placeholder="Email" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="adminPassword" placeholder="Password" required>
+                    </div>
+                    <div class="remember-me">
+                        <input type="checkbox" id="adminRemember">
+                        <label for="adminRemember">Remember Me</label>
+                    </div>
+                    <button type="submit" class="login-btn">LOG IN</button>
+                    <div id="adminError" class="error"></div>
+                    <div class="social-login">
+                        <p>Or log in with:</p>
+                        <button type="button" class="google-btn" onclick="handleGoogleLogin()">
+                            <i class="fab fa-google"></i> Google
+                        </button>
+                    </div>
+                </form>
+                <p class="switch-text">
+                    Login as a member? <a href="#" onclick="toggleForms()">Click here</a>
+                </p>
             </div>
         </div>
     </div>
@@ -99,68 +97,24 @@
             ? 'http://localhost:5002'
             : 'https://socialphew.onrender.com';
 
-        function shiftContainer() {
-            const gradient = document.getElementById('gradientSlide');
-            const memberForm = document.getElementById('memberFormBox');
-            const adminForm = document.getElementById('adminFormBox');
-            
-            gradient.classList.toggle('shiftLeft');
-            memberForm.classList.toggle('hidden');
-            adminForm.classList.toggle('hidden');
-        }
-
-        async function handleAdminLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('adminEmail').value;
-            const password = document.getElementById('adminPassword').value;
-            const errorElement = document.getElementById('adminError');
-            const loadingSpinner = document.getElementById('loadingSpinnerAdmin');
-            
-            loadingSpinner.style.display = 'block';
-            errorElement.style.display = 'none';
-            
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/auth/admin-login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-                const data = await response.json();
-                
-                if (response.ok) {
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('isAdmin', 'true');
-                    window.location.href = 'main.html';
-                } else {
-                    errorElement.textContent = data.message || 'Login failed';
-                    errorElement.style.display = 'block';
-                }
-            } catch (error) {
-                errorElement.textContent = 'An error occurred. Please try again.';
-                errorElement.style.display = 'block';
-            } finally {
-                loadingSpinner.style.display = 'none';
-            }
+        function toggleForms() {
+            document.getElementById('blueSide').classList.toggle('slide-right');
+            document.getElementById('memberForm').classList.toggle('hidden');
+            document.getElementById('adminForm').classList.toggle('hidden');
+            document.getElementById('memberText').classList.toggle('active');
+            document.getElementById('adminText').classList.toggle('active');
         }
 
         async function handleMemberLogin(e) {
             e.preventDefault();
             const email = document.getElementById('memberEmail').value;
             const password = document.getElementById('memberPassword').value;
-            const errorElement = document.getElementById('memberError');
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            
-            loadingSpinner.style.display = 'block';
-            errorElement.style.display = 'none';
-            
+            const errorDiv = document.getElementById('memberError');
+
             try {
                 const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
                 const data = await response.json();
@@ -170,14 +124,40 @@
                     localStorage.setItem('isAdmin', 'false');
                     window.location.href = 'main.html';
                 } else {
-                    errorElement.textContent = data.message || 'Login failed';
-                    errorElement.style.display = 'block';
+                    errorDiv.textContent = data.message || 'Login failed';
+                    errorDiv.style.display = 'block';
                 }
             } catch (error) {
-                errorElement.textContent = 'An error occurred. Please try again.';
-                errorElement.style.display = 'block';
-            } finally {
-                loadingSpinner.style.display = 'none';
+                errorDiv.textContent = 'An error occurred. Please try again.';
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        async function handleAdminLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            const errorDiv = document.getElementById('adminError');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/admin-login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('isAdmin', 'true');
+                    window.location.href = 'main.html';
+                } else {
+                    errorDiv.textContent = data.message || 'Login failed';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'An error occurred. Please try again.';
+                errorDiv.style.display = 'block';
             }
         }
 
@@ -185,15 +165,8 @@
             console.log('Google login clicked');
         }
 
-        function handleAppleLogin() {
-            console.log('Apple login clicked');
-        }
-
-        document.getElementById('adminLoginForm').addEventListener('submit', handleAdminLogin);
-        document.getElementById('memberLoginForm').addEventListener('submit', handleMemberLogin);
-
         // Initialize form visibility
-        document.getElementById('adminFormBox').classList.add('hidden');
+        document.getElementById('adminForm').classList.add('hidden');
     </script>
 </body>
 </html>
