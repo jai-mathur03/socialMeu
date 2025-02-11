@@ -333,6 +333,7 @@
             content.style.display = content.style.display === 'none' ? 'flex' : 'none';
         }
 
+        // Update the loadConnections function
         async function loadConnections() {
             try {
                 const response = await fetch(`${API_BASE_URL}/api/connections`, {
@@ -341,7 +342,10 @@
                 const connections = await response.json();
                 document.getElementById('connections-content').innerHTML = connections.map(connection => `
                     <div class="member-card">
-                        <img src="${connection.profilePicture}" alt="Profile" class="profile-pic">
+                        <img src="${API_BASE_URL}/api/profilePicture/${connection._id}" 
+                             alt="Profile" 
+                             class="profile-pic"
+                             onerror="this.src='https://via.placeholder.com/150'">
                         <div class="user-info">
                             <h3>${connection.name}</h3>
                             <p>${connection.designation}</p>
@@ -353,7 +357,8 @@
                 console.error('Error loading connections:', error);
             }
         }
-
+        
+        // Update the loadRequests function
         async function loadRequests() {
             try {
                 const response = await fetch(`${API_BASE_URL}/api/connections/requests`, {
@@ -362,7 +367,10 @@
                 const requests = await response.json();
                 document.getElementById('requests-content').innerHTML = requests.map(request => `
                     <div class="member-card">
-                        <img src="${request.profilePicture}" alt="Profile" class="profile-pic">
+                        <img src="${API_BASE_URL}/api/profilePicture/${request._id}" 
+                             alt="Profile" 
+                             class="profile-pic"
+                             onerror="this.src='https://via.placeholder.com/150'">
                         <div class="user-info">
                             <h3>${request.name}</h3>
                             <div class="button-group">
@@ -376,7 +384,8 @@
                 console.error('Error loading requests:', error);
             }
         }
-
+        
+        // Update the loadMembers function
         async function loadMembers() {
             try {
                 const response = await fetch(`${API_BASE_URL}/api/members`, {
@@ -385,19 +394,20 @@
                 const members = await response.json();
                 document.getElementById('members-content').innerHTML = members.map(member => `
                     <div class="member-card">
-                        <img src="${member.profilePicture || 'https://via.placeholder.com/150'}" 
-                            alt="Profile" 
-                            class="profile-pic">
+                        <img src="${API_BASE_URL}/api/profilePicture/${member._id}"
+                             alt="Profile"
+                             class="profile-pic"
+                             onerror="this.src='https://via.placeholder.com/150'">
                         <div class="user-info">
                             <h3>${member.name}</h3>
                             ${
-                                member.isConnected ? 
+                                member.isConnected ?
                                 '<p>Connected</p>' :
                                 member.requestSent ?
                                 '<p>Request Pending</p>' :
                                 member.requestReceived ?
                                 '<p>Request Received</p>' :
-                                `<button onclick="sendRequest('${member._id}')" 
+                                `<button onclick="sendRequest('${member._id}')"
                                     class="button connect-btn">Connect</button>`
                             }
                         </div>
@@ -407,6 +417,7 @@
                 console.error('Error loading members:', error);
             }
         }
+        
 
         async function sendRequest(userId) {
             try {
