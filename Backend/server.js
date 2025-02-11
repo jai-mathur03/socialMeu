@@ -436,6 +436,19 @@ app.put('/api/admin/approve/:id', authenticate, verifyAdmin, async (req, res) =>
   }
 });
 
+app.get('/api/approved-members', async (req, res) => {
+    try {
+        const approvedMembers = await User.find({ 
+            isApproved: true 
+        }).select('name designation _id');
+        
+        res.json(approvedMembers);
+    } catch (error) {
+        console.error('Error fetching approved members:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 const PORT = process.env.PORT || 5002;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
