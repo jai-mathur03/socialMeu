@@ -113,11 +113,23 @@
 
         /* Member Cards - Horizontal Scroll */
         /* Replace the existing .member-grid CSS with this */
+        /* Update these CSS classes in the <style> section of Main.html */
+
+/* First, modify the dropdown-content class */
+        .dropdown-content {
+            display: flex !important; /* Override any display:none with !important */
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        /* Then update the member-grid class */
         .member-grid {
-            display: flex;
-            flex-wrap: wrap;  /* This enables wrapping to next row */
-            gap: 1rem;
-            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            width: 100%;
         }
         
         /* Update the member-card class */
@@ -126,12 +138,13 @@
             border-radius: 8px;
             box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
             padding: 15px;
-            width: 250px;  /* Fixed width */
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 10px;
-            flex-shrink: 0;  /* Prevents cards from shrinking */
+            width: 100%;
+            max-width: 250px;
+            margin: 0 auto;
         }
 
         .profile-pic {
@@ -317,8 +330,7 @@
 
         function toggleSection(sectionId) {
             const content = document.getElementById(sectionId);
-            const currentDisplay = content.style.display;
-            content.style.display = currentDisplay === 'none' ? 'grid' : 'none';
+            content.style.display = content.style.display === 'none' ? 'flex' : 'none';
         }
 
         async function loadConnections() {
