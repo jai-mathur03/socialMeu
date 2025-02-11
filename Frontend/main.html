@@ -287,13 +287,13 @@
             ? 'http://localhost:5002'
             : 'https://socialphew.onrender.com';
 
+        // Inside your DOMContentLoaded event listener in Main.html, update this section:
         document.addEventListener('DOMContentLoaded', async () => {
             const token = localStorage.getItem('token');
             if (!token) {
                 window.location.href = '/frontPage.html';
                 return;
             }
-
             try {
                 const response = await fetch(`${API_BASE_URL}/api/users/me`, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -301,16 +301,22 @@
                 if (!response.ok) throw new Error('Failed to verify user');
                 const userData = await response.json();
                 
+                // Update this part to set the profile picture
+                const profilePicElement = document.getElementById('profile-pic');
+                if (userData._id) {
+                    profilePicElement.src = `${API_BASE_URL}/api/profilePicture/${userData._id}`;
+                    // Add error handler in case image fails to load
+                    profilePicElement.onerror = function() {
+                        this.src = 'https://via.placeholder.com/150';
+                    };
+                }
+        
                 if (userData.isAdmin) {
                     document.getElementById('admin-section').style.display = 'block';
                     loadPendingRequests();
                     fetchContent();
                 }
-                
-                if (userData.profilePicture) {
-                    document.getElementById('profile-pic').src = userData.profilePicture;
-                }
-
+        
                 await Promise.all([
                     loadConnections(),
                     loadRequests(),
