@@ -1,180 +1,292 @@
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
+/* General Reset */
+body,
+html {
+    margin: 0;
+    padding: 0;
+    font-family: "Arial", sans-serif;
+    background-color: #ffffff;
+    color: #333;
+    scroll-behavior: smooth;
+    box-sizing: border-box;
 }
 
-.logo {
-  /*logo class for socialite*/
-  font-family: "sans-serif"; /*default font*/
-  font-size: 30px;
-  font-weight: 600;
-}
+/* Navbar */
 .nav {
-  /*css for top navbar*/
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-  border-bottom: 1px solid black;
-  position: sticky; /*gets the navbar stick to the particular position , even if the user scrolls*/
-  top: 0;
-  background: white;
-  z-index: 4; /*putting on top of everything else*/
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #007bff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+.nav .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ffffff;
 }
 
 .nav .links a {
-  /*displaying navbar links like "about us", "suggestions" on navbar*/
-  text-decoration: none;
-  color: black;
-  cursor: pointer; /*gets the cursor to be pointed*/
+    margin: 0 15px;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.3s ease;
 }
 
-.nav .links {
-  /*positioning navbar links */
-  display: flex;
-  gap: 20px; /*creates gap between navbar contents*/
-}
-.about {
-  padding-right: 30px;
-}
-.suggestion {
-  padding-left: 30px;
-}
-.profile {
-  /*profile container on top right*/
-  display: flex;
-  align-items: center;
-  gap: 10px; /*creates gap between logout button and the profile image*/
+.nav .links a:hover {
+    color: #cce5ff;
 }
 
-.profile img {
-  /*for profile image on top right*/
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
+/* Profile Section in Navbar */
+.nav .profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.editProfile {
-  /*profile pic button*/
-  position: absolute;
-  top: 50px;
-  right: 20px;
-  margin-top: 10px;
-  padding: 10px 20px;
-  border: 1px solid black;
-  cursor: pointer; /*gets the cursor to be pointed*/
+.nav .profile img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
 }
 
+.nav .profile button {
+    background-color: #ffffff;
+    color: #007bff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.nav .profile button:hover {
+    background-color: #e6e6e6;
+}
+
+/* Sections */
 section {
-  /*for dividing the page into sections, with each section having bottom border*/
-  padding: 10px 20px;
-  border-bottom: 1px solid black;
+    padding: 60px 20px;
+    text-align: center;
+    background-color: #ffffff;
+    animation: fadeIn 1s ease-in;
+    border-bottom: 1px solid #eaeaea;
 }
+
+section h1 {
+    font-size: 2rem;
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
+section p {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto 20px;
+    text-align: justify;
+}
+
+/* About Section */
+#home {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* Suggestions Section */
+#suggestions {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+}
+
+/* Suggestions - Horizontal Scroll */
 .membersContainer {
-  /* members container for suggesstions section*/
-  display: flex;
-  overflow-x: scroll; /*horizontal scroll bar*/
-  padding: 20px;
-  border-top: 1px solid black;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 20px;
+    padding: 20px;
+    white-space: nowrap;
+    width: 100%;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
 }
 
-.members {
-  /*positioning suggestion cards*/
-  display: flex;
-  gap: 10px;
-  overflow-x: auto; /*if the content overflows horizontally, an automatic scroll bar will appear on its own*/
-  white-space: nowrap; /*prevents the content from wrapping onto multiple lines*/
-  padding: 10px 0;
+.membersContainer::-webkit-scrollbar {
+    height: 8px;
 }
 
+.membersContainer::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.membersContainer::-webkit-scrollbar-thumb {
+    background: #007bff;
+    border-radius: 4px;
+}
+
+.membersContainer::-webkit-scrollbar-thumb:hover {
+    background: #0056b3;
+}
+
+/* Individual Suggestion Cards */
 .suggestionCard {
-  /*styling inside suggetions card*/
-  border: 1px solid #ccc;
-  padding: 10px;
-  text-align: center;
-  width: 150px;
-  background: #ececec;
-  border-radius: 8px;
+    background-color: #ffffff;
+    border: 1px solid #d1d1d1;
+    border-radius: 10px;
+    width: 250px;
+    flex: 0 0 auto;
+    padding: 15px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: inline-block;
+    white-space: normal;
+}
+
+.suggestionCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .suggestionCard img {
-  /*images of suggestions card*/
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  border: 1px solid black;
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    margin-bottom: 10px;
+    object-fit: cover;
+}
+
+.suggestionCard p {
+    margin: 5px 0;
+    color: #333;
+    text-align: center;
 }
 
 .suggestionCard button {
-  /*connect? button*/
-  margin-top: 10px;
-  padding: 5px 10px;
-  background: #154374;
-  color: white;
-  cursor: pointer; /*gets the cursor to be pointed*/
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    margin-top: 10px;
 }
 
 .suggestionCard button:hover {
-  background: #000000; /*button on hover colour*/
+    background-color: #0056b3;
+    transform: scale(1.05);
 }
 
-.dropMenu {
-  /*css for drop down menu for connections section*/
-  margin-bottom: 10px;
-}
-
-.dropButton {
-  /*for buttons like "connections" "requests"  and "Members" under connections section*/
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 10px;
-  font-size: 16px;
-  background: #f1f1f1;
-  border: 1px solid #ccc;
-  cursor: pointer; /*gets the cursor to be pointed*/
-  margin-bottom: 5px;
-}
-
-.menuContent a {
-  /*drop down menu content under */
-  display: block;
-  padding: 5px 10px;
-  color: #333;
-  background: #fff;
-  border: 1px solid #ccc;
-  margin-top: -1px;
-}
-
-.memberRow {
-  /*allignment of members next to the image*/
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.circularPic {
-  /*picture for members*/
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  margin-right: 10px;
-}
-
+/* Fixed Join Button */
 .joinButton {
-  /*join button, fixed on the page*/
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  padding: 10px 20px;
-  border: 1px solid black;
-  cursor: pointer; /*gets the cursor to be pointed*/
-  background-color: black;
-  color: white;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.joinButton a:hover {
-  background-color: red;
-  color: #000000;
+.joinButton:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Edit Profile Button */
+.editProfile {
+    margin: 10px;
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.editProfile:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .nav {
+        padding: 10px;
+    }
+    
+    .nav .links a {
+        margin: 0 10px;
+    }
+    
+    section {
+        padding: 40px 15px;
+    }
+    
+    .suggestionCard {
+        width: 200px;
+    }
+    
+    .joinButton {
+        bottom: 15px;
+        right: 15px;
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav .logo {
+        font-size: 1.2rem;
+    }
+    
+    .nav .links a {
+        margin: 0 8px;
+        font-size: 0.9rem;
+    }
+    
+    section h1 {
+        font-size: 1.5rem;
+    }
+    
+    .suggestionCard {
+        width: 180px;
+    }
 }
