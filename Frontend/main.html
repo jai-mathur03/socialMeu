@@ -5,6 +5,170 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Socialite</title>
     <style>
+        /* Chat Section */
+        .chat-section {
+          margin: 20px auto;
+          padding: 0;
+          background: white;
+          border-radius: 8px;
+          max-width: 80%;
+          box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+          display: flex;
+          flex-direction: column;
+          height: 500px;
+        }
+        
+        .chat-header {
+          padding: 15px;
+          background: #007bff;
+          color: white;
+          font-size: 18px;
+          border-top-left-radius: 8px;
+          border-top-right-radius: 8px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        
+        .chat-sidebar {
+          width: 30%;
+          border-right: 1px solid #ddd;
+          overflow-y: auto;
+          height: 100%;
+        }
+        
+        .chat-contact {
+          padding: 10px 15px;
+          border-bottom: 1px solid #eee;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        
+        .chat-contact:hover {
+          background-color: #f5f5f5;
+        }
+        
+        .chat-contact.active {
+          background-color: #e6f2ff;
+        }
+        
+        .chat-contact img {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+        
+        .chat-container {
+          display: flex;
+          flex: 1;
+          height: calc(500px - 50px);
+        }
+        
+        .chat-main {
+          width: 70%;
+          display: flex;
+          flex-direction: column;
+        }
+        
+        .chat-messages {
+          flex: 1;
+          padding: 15px;
+          overflow-y: auto;
+          background-color: #f9f9f9;
+        }
+        
+        .message {
+          margin-bottom: 10px;
+          max-width: 70%;
+          padding: 8px 12px;
+          border-radius: 16px;
+          position: relative;
+          clear: both;
+          word-wrap: break-word;
+        }
+        
+        .message-received {
+          background-color: #e6e6e6;
+          float: left;
+          border-bottom-left-radius: 4px;
+        }
+        
+        .message-sent {
+          background-color: #007bff;
+          color: white;
+          float: right;
+          border-bottom-right-radius: 4px;
+        }
+        
+        .message-time {
+          font-size: 0.7rem;
+          color: #777;
+          margin-top: 5px;
+          text-align: right;
+        }
+        
+        .message-received .message-time {
+          color: #777;
+        }
+        
+        .message-sent .message-time {
+          color: #d9d9d9;
+        }
+        
+        .chat-input-container {
+          padding: 10px;
+          background-color: #f0f0f0;
+          display: flex;
+          border-bottom-left-radius: 8px;
+          border-bottom-right-radius: 8px;
+        }
+        
+        .chat-input {
+          flex: 1;
+          padding: 10px;
+          border: 1px solid #ddd;
+          border-radius: 20px;
+          margin-right: 10px;
+        }
+        
+        .chat-send-btn {
+          background-color: #007bff;
+          color: white;
+          border: none;
+          border-radius: 20px;
+          padding: 0 20px;
+          cursor: pointer;
+        }
+        
+        .chat-send-btn:hover {
+          background-color: #0056b3;
+        }
+        
+        .no-chat-selected {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100%;
+          width: 100%;
+          color: #777;
+          font-style: italic;
+        }
+        
+        .chat-notification {
+          background-color: #ff3b30;
+          color: white;
+          border-radius: 50%;
+          width: 20px;
+          height: 20px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: 12px;
+          margin-left: 5px;
+        }
         * {
             margin: 0;
             padding: 0;
@@ -239,6 +403,7 @@
             <a onclick="scrollToSection('about-section')" style="margin-right: 40px;">About us</a>
             <a onclick="scrollToSection('dropdown-section')" style="margin-right: 40px;">Suggestions</a>
             <a onclick="scrollToSection('dropdown-section')">Connections</a>
+            <a onclick="scrollToSection('chat-section')" style="margin-right: 40px;">Messages</a>
         </div>
         <div class="profile">
             <img id="profile-pic" src="https://via.placeholder.com/150" alt="Profile Picture">
@@ -281,7 +446,30 @@
         <textarea id="markdown-editor" rows="10" placeholder="Update front page content..."></textarea>
         <button onclick="updateContent()" class="button connect-btn">Submit Changes</button>
     </div>
-
+    <div class="dropdown-section" id="chat-section">
+      <div class="dropdown-header" onclick="toggleSection('chat-content')">
+        <h2>Messages</h2>
+        <span class="dropdown-arrow">▼</span>
+      </div>
+      <div id="chat-content" class="dropdown-content chat-section">
+        <div class="chat-container">
+          <div class="chat-sidebar" id="chat-contacts">
+            <!-- Chat contacts will be loaded here -->
+          </div>
+          <div class="chat-main">
+            <div id="chat-messages" class="chat-messages">
+              <div class="no-chat-selected">
+                <p>Select a connection to start chatting</p>
+              </div>
+            </div>
+            <div class="chat-input-container">
+              <input type="text" id="chat-input" class="chat-input" placeholder="Type a message..." disabled>
+              <button id="chat-send-btn" class="chat-send-btn" disabled>Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <script>
         const API_BASE_URL = window.location.hostname === 'localhost'
             ? 'http://localhost:5002'
@@ -321,7 +509,9 @@
                     loadConnections(),
                     loadRequests(),
                     loadMembers(),
-                    fetchAboutUsContent()
+                    fetchAboutUsContent(),
+                    loadChatContacts()
+                    
                 ]);
             } catch (error) {
                 console.error('Error:', error);
@@ -550,6 +740,189 @@
         function logout() {
             localStorage.removeItem('token');
             window.location.href = '/frontPage.html';
+        }
+        let currentChatUser = null;
+        let chatSocket = null;
+        let unreadMessages = {};
+        
+        // Function to load chat contacts
+        async function loadChatContacts() {
+          try {
+            const response = await fetch(`${API_BASE_URL}/api/connections`, {
+              headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            const connections = await response.json();
+            
+            document.getElementById('chat-contacts').innerHTML = connections.map(connection => {
+              const unreadCount = unreadMessages[connection._id] || 0;
+              const unreadBadge = unreadCount > 0 ? 
+                `<span class="chat-notification">${unreadCount}</span>` : '';
+                
+              return `
+                <div class="chat-contact" onclick="openChat('${connection._id}', '${connection.name}')">
+                  <img src="${API_BASE_URL}/api/profilePicture/${connection._id}" 
+                    alt="Profile" 
+                    onerror="this.src='https://via.placeholder.com/150'">
+                  <div>
+                    <strong>${connection.name}</strong>
+                  </div>
+                  ${unreadBadge}
+                </div>
+              `;
+            }).join('');
+          } catch (error) {
+            console.error('Error loading chat contacts:', error);
+          }
+        }
+        
+        // Function to open chat with a user
+        async function openChat(userId, userName) {
+          // Set current chat user
+          currentChatUser = userId;
+          
+          // Clear unread messages for this user
+          unreadMessages[userId] = 0;
+          
+          // Update the active chat contact styling
+          const chatContacts = document.querySelectorAll('.chat-contact');
+          chatContacts.forEach(contact => {
+            contact.classList.remove('active');
+            if (contact.getAttribute('onclick').includes(userId)) {
+              contact.classList.add('active');
+              // Remove notification badge
+              const badge = contact.querySelector('.chat-notification');
+              if (badge) badge.remove();
+            }
+          });
+          
+          // Enable input and button
+          document.getElementById('chat-input').disabled = false;
+          document.getElementById('chat-send-btn').disabled = false;
+          
+          try {
+            // Fetch chat history
+            const response = await fetch(`${API_BASE_URL}/api/messages/${userId}`, {
+              headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            
+            const messages = await response.json();
+            displayMessages(messages);
+            
+          } catch (error) {
+            console.error('Error loading chat history:', error);
+          }
+        }
+        
+        // Function to display messages
+        function displayMessages(messages) {
+          const chatMessagesElement = document.getElementById('chat-messages');
+          
+          if (messages.length === 0) {
+            chatMessagesElement.innerHTML = '<div class="no-chat-selected"><p>No messages yet. Start the conversation!</p></div>';
+            return;
+          }
+          
+          chatMessagesElement.innerHTML = messages.map(message => {
+            const messageType = message.senderId === currentChatUser ? 'message-received' : 'message-sent';
+            const timestamp = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            return `
+              <div class="message ${messageType}">
+                ${message.content}
+                <div class="message-time">${timestamp}</div>
+              </div>
+            `;
+          }).join('');
+          
+          // Scroll to bottom of chat
+          chatMessagesElement.scrollTop = chatMessagesElement.scrollHeight;
+        }
+        
+        // Function to send a message
+        async function sendMessage() {
+          const inputElement = document.getElementById('chat-input');
+          const message = inputElement.value.trim();
+          
+          if (!message || !currentChatUser) return;
+          
+          try {
+            const response = await fetch(`${API_BASE_URL}/api/messages/send`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                recipientId: currentChatUser,
+                content: message
+              })
+            });
+            
+            if (response.ok) {
+              // Clear input
+              inputElement.value = '';
+              
+              // Refresh chat
+              openChat(currentChatUser);
+            }
+          } catch (error) {
+            console.error('Error sending message:', error);
+          }
+        }
+        
+        // Set up event listeners for chat
+        document.addEventListener('DOMContentLoaded', () => {
+          // Add to existing DOMContentLoaded event
+          const chatInput = document.getElementById('chat-input');
+          const chatSendBtn = document.getElementById('chat-send-btn');
+          
+          // Load chat contacts
+          loadChatContacts();
+          
+          // Set up polling for new messages
+          setInterval(checkNewMessages, 5000);
+          
+          // Add event listeners
+          chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+              sendMessage();
+            }
+          });
+          
+          chatSendBtn.addEventListener('click', sendMessage);
+        });
+        
+        // Function to check for new messages
+        async function checkNewMessages() {
+          if (!localStorage.getItem('token')) return;
+          
+          try {
+            const response = await fetch(`${API_BASE_URL}/api/messages/unread`, {
+              headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            
+            if (response.ok) {
+              const newMessages = await response.json();
+              
+              // Update unread message counts
+              newMessages.forEach(msg => {
+                if (!unreadMessages[msg.senderId]) {
+                  unreadMessages[msg.senderId] = 0;
+                }
+                unreadMessages[msg.senderId] += 1;
+              });
+              
+              // Refresh chat contacts to show new message indicators
+              loadChatContacts();
+              
+              // If chat with sender is currently open, refresh the chat
+              if (currentChatUser && newMessages.some(msg => msg.senderId === currentChatUser)) {
+                openChat(currentChatUser);
+              }
+            }
+          } catch (error) {
+            console.error('Error checking new messages:', error);
+          }
         }
     </script>
 </body>
