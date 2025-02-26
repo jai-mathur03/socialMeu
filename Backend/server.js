@@ -57,7 +57,16 @@ const contentSchema = new mongoose.Schema({
   content: { type: String, required: true },
   lastUpdated: { type: Date, default: Date.now }
 });
+const messageSchema = new mongoose.Schema({
+  senderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  recipientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  content: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now },
+  read: { type: Boolean, default: false }
+});
 
+// Create Message model
+const Message = mongoose.model('Message', messageSchema);
 // Models
 const ProfilePicture = mongoose.model('ProfilePicture', profilePictureSchema);
 const User = mongoose.model('User', userSchema);
@@ -447,6 +456,91 @@ app.get('/api/approved-members', async (req, res) => {
         console.error('Error fetching approved members:', error);
         res.status(500).json({ message: 'Server error' });
     }
+});
+// Message Routes
+app.post('/api/messages/send', authenticate, async (req, res) => {
+  try {
+    const { recipientId, content } = req.body;
+    
+    // Verify sender and recipient exist and are connected
+    const sender = await User.findById(req.user.id);
+    const recipient = await User.findById(recipientId);
+    
+    if (!sender || !recipient) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    // Check if they are connected
+    if (!sender.connections.includes(recipientId)) {
+      return res.status(403).json({ message: 'You can only message your connections' });
+    }
+    
+    // Create and save the message
+    const newMessage = new Message({
+      senderId: req.user.id,
+      recipientId,
+      content
+    });
+    
+    await newMessage.save();
+    res.status(201).json(newMessage);
+  } catch (error) {
+    console.error('Send message error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/messages/:userId', authenticate, async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    
+    // Verify users exist and are connected
+    const currentUser = await User.findById(req.user.id);
+    const otherUser = await User.findById(userId);
+    
+    if (!currentUser || !otherUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    // Check if they are connected
+    if (!currentUser.connections.includes(userId)) {
+      return res.status(403).json({ message: 'You can only view messages from your connections' });
+    }
+    
+    // Get messages between the two users
+    const messages = await Message.find({
+      $or: [
+        { senderId: req.user.id, recipientId: userId },
+        { senderId: userId, recipientId: req.user.id }
+      ]
+    }).sort({ timestamp: 1 });
+    
+    // Mark messages as read if they were sent to the current user
+    await Message.updateMany(
+      { senderId: userId, recipientId: req.user.id, read: false },
+      { read: true }
+    );
+    
+    res.json(messages);
+  } catch (error) {
+    console.error('Get messages error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/messages/unread', authenticate, async (req, res) => {
+  try {
+    // Get all unread messages sent to the current user
+    const unreadMessages = await Message.find({
+      recipientId: req.user.id,
+      read: false
+    }).sort({ timestamp: 1 });
+    
+    res.json(unreadMessages);
+  } catch (error) {
+    console.error('Get unread messages error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 const PORT = process.env.PORT || 5002;
